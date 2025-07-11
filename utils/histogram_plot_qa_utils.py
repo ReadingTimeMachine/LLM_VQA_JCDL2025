@@ -662,3 +662,78 @@ def q_gmm_equation_hists(data, qa_pairs, plot_num = 0, return_qa=True, use_words
         else:
             qa_pairs['Level 3']['Plot-level questions'][big_tag_short + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a}
         return qa_pairs
+
+
+def q_gmm_ngaussians_hists(data, qa_pairs, plot_num = 0, return_qa=True, use_words=True, verbose=True):
+    """
+    use_words : set to True to translate row, column to words; False will use C-ordering indexing
+    use_nlines : give the number of lines in the prompt
+    """
+
+    big_tag_short = 'gmm ngaussians'
+    #object = 'What are the parameters for the gaussian mixture model distribution used to create the histogram'
+    object = 'How many gaussians have been used to generate the histogram'
+
+    # is this a linear relationship? if not this is an error
+    hasLine = False
+    if data['plot'+str(plot_num)]['distribution'] != 'gmm': # not a linear relationship
+        if verbose:
+            print('Not a gmm relationship!')
+        if return_qa:
+            return qa_pairs
+        else:
+            return None
+
+    if data['plot'+str(plot_num)]['distribution'] == 'gmm':
+        hasLine = True
+
+    if not hasLine:
+        print("This is not a gmm relationship, can't ask any questions!'")
+        import sys; sys.exit()
+        
+    adder = ''
+    # how many plots
+    nplots = 0
+    for k,v in data.items(): # count number of plots
+        if 'plot' in k:
+            nplots += 1
+    if not use_words:
+        adder += '(plot numbers)'
+        # rows columns
+        nrow = data['figure']['plot indexes'][plot_num][0]
+        ncol = data['figure']['plot indexes'][plot_num][1]
+        q = 'The following question refers to the figure panel on row number ' + str(nrow) + ' and column number ' + str(ncol) + '. '
+        q += 'If there are multiple plots the panels will be in row-major (C-style) order, with the numbering starting at (0,0) in the upper left panel. '
+        q += 'If there is one plot, then this row and column refers to the single plot. '
+    else: 
+        adder += '(words)'
+
+    if nplots == 1: # single plot
+        q = object + ' in this figure? '
+    else:
+        if not use_words:
+            q += object + ' for the figure panel on row number ' + \
+              str(nrow) + ' and column number ' + str(ncol) + '? '
+        else:
+            q = object + ' for the plot in the ' + \
+              plot_index_to_words(data['figure']['plot indexes'][plot_num]) + ' panel? '  
+
+    # 'nsamples', 'nclusters', 'centers', 'cluster_std', 'noise level'
+    q += 'You are a helpful assistant, please format the output as a json as {"'+big_tag_short+\
+          '":""}}. '
+    q += 'Where the "ngaussians" parameter should be the number of gaussians used to generate the histogram and should be an integer. '
+
+    # answer
+    la = data['plot'+str(plot_num)]['data']['data params']['nclusters']
+
+    a = {big_tag_short + ' ' + adder:la}
+
+    if verbose:
+        print('QUESTION:', q)
+        print('ANSWER:', {'plot'+str(plot_num):a})
+    if return_qa: 
+        if big_tag_short + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
+            qa_pairs['Level 3']['Plot-level questions'][big_tag_short + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a}}
+        else:
+            qa_pairs['Level 3']['Plot-level questions'][big_tag_short + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a}
+        return qa_pairs
