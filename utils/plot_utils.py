@@ -7,6 +7,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from PIL import ImageColor
 
+# classes
+from .plot_classes_utils import Histogram
+
 # for scatter plot markers
 from matplotlib.lines import Line2D
 marker_dir = Line2D.markers
@@ -589,19 +592,7 @@ def get_image_of_the_sky_plot(plot_params, data, fig,
 
 
 
-class Histogram():
-    def __init__(self):
-        self.rwidth = None
-        self.elinewidth = None
-        self.orientation = None
-        self.axis = None
-        self.lthick = None
-        self.linestyle = None
-        self.linecolor = None
-        self.barcolor = None
-        self.nbins = None
-        self.es = None
-        self.hasErr = None
+
 
 
 
