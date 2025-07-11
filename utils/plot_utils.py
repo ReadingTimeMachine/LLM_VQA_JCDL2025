@@ -664,14 +664,23 @@ def get_histogram_plot(plot_params, data, ax, linestyles=linestyles, rng=np.rand
         # print('edgecolor=', hist.linecolor, len(hist.linecolor))
         # print('color=', hist.barcolor)
         # print('')
-        if len(hist.linecolor) == 1: # just the one color
-            hist.linecolor = hist.linecolor[0]
-        data_here = ax.hist(data[hist.axis], orientation=hist.orientation, linewidth=hist.lthick, 
-                                     linestyle = hist.linestyle, 
-                                     edgecolor=hist.linecolor, 
-                            color=hist.barcolor, 
-                            rwidth=hist.rwidth, bins=hist.nbins)
-        # except Exception as e:
+        try:
+            data_here = ax.hist(data[hist.axis], orientation=hist.orientation, linewidth=hist.lthick, 
+                                        linestyle = hist.linestyle, 
+                                        edgecolor=hist.linecolor, 
+                                color=hist.barcolor, 
+                                rwidth=hist.rwidth, bins=hist.nbins)
+        except:
+            if len(hist.linecolor) == 1: # just the one color
+                hist.linecolor = hist.linecolor[0]
+            data_here = ax.hist(data[hist.axis], orientation=hist.orientation, linewidth=hist.lthick, 
+                                        linestyle = hist.linestyle, 
+                                        edgecolor=hist.linecolor, 
+                                color=hist.barcolor, 
+                                rwidth=hist.rwidth, bins=hist.nbins)
+            
+            
+                    # except Exception as e:
         #     print(str(e))
         #     print('data:',data[axis])
         #     print('orientation:',orientation)
