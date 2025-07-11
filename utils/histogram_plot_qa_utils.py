@@ -269,6 +269,7 @@ def q_barpoints_bars(data, qa_pairs, plot_num = 0, return_qa=True, use_words=Tru
 def q_stats_hists(data, qa_pairs, stat = {'minimum':np.min}, plot_num = 0, 
                      return_qa=True, use_words=True, verbose=True):
     """
+    stat: {'name':stat} which gives name of stat and function to calculate it, like {'minimum':np.min}
     use_words : set to True to translate row, column to words; False will use C-ordering indexing
     stat : dictionary of the name and function to use for each stat
     """
