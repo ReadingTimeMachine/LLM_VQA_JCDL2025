@@ -1,0 +1,11 @@
+Figure Name,Correct Number of Panels,Plotting Style Mentioned,Correct Number of Lines/Bars (NM=not mentioned),Correct plot type,Linestyles correct,y-axis tick labels correct,x-axis tick labels correct,x-axis label mentioned,"y-axis label mentioned (M=mentioned, C=correct, NC=not correct)","Title mentioned/Title correct (M=mentioned, C=correct, NC=not correct)",color bar mentioned,error bars mentioned (NA means no error bars),other hallucinations
+Picture100,Y,N,Y/NA/N,Y/N/Y,N/NA/NA,N/N/N,N/N/N,N/N/N,N/N/N,NA/M-NC/M-C,NA/N/NA,NA/N/NA,0.0/1/1
+Picture103,Y,N,N,Y,NA,Y,Y,Y,M-NC,M-C,NA,N,2
+Picture104,Y,N,Y,Y,NA,Y,Y,Y,M-NC,NA,NA,Y,0
+Picture112,Y,N,NM,Y,NA,Y,Y,Y,Y,Y,NA,N,0
+Picture117,Y,N,NA/NA/NA/NA,Y/Y/N/Y,NA/NA/NA/NA,Y/N/N/N,N/N/N/N,Y/Y/N/N,M-NC/M-NC/N/N,NA/Y/NA/NA,NA/M-NC/N/N,N/N/NA/N,1.0/1/0/1
+Picture12,Y,N,NA/NM,Y/Y,NA/NA,N/N,N/N,N/N,NM/NM,M-NC/NA,NA/NA,NA/N,2.0/2.0
+Picture139,Y,N,NM,Y,NA,Y,Y,Y,NM,M-C,NA,N,1
+Picture15,Y,N,NM,Y,NA,Y,Y,N,M-C,NA,NA,N,1
+Picture159,Y,N,NM,N,NA,Y,Y,N,M-C,NA,N,N,3
+Picture16,Y,N,Y,Y,N,Y,Y,M-NC,M-C,NA,NA,NA,2
