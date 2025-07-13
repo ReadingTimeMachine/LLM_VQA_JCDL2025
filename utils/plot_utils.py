@@ -15,7 +15,7 @@ from matplotlib.lines import Line2D
 marker_dir = Line2D.markers
 
 # for astro coord systems
-from astropy.wcs import WCS
+#from astropy.wcs import WCS
 
 markers = []
 for m,mn in marker_dir.items():
@@ -374,221 +374,221 @@ def get_contour_plot(plot_params, data, ax, rng=np.random):
 
 
 
-def create_sky_projection(xmin, ymin, xmax, ymax, nx, ny, rng=np.random):
-    CRVAL1 = xmax # RA at pixel 1 -- NOTE: RA decreases along x typically!
-    CRVAL2 = ymin # DEC at pixel 1
+# def create_sky_projection(xmin, ymin, xmax, ymax, nx, ny, rng=np.random):
+#     CRVAL1 = xmax # RA at pixel 1 -- NOTE: RA decreases along x typically!
+#     CRVAL2 = ymin # DEC at pixel 1
 
-    # deg per pixel
-    CDELT1 = (xmin - xmax)/nx # should be < 0
-    CDELT2 = (ymax - ymin)/ny
+#     # deg per pixel
+#     CDELT1 = (xmin - xmax)/nx # should be < 0
+#     CDELT2 = (ymax - ymin)/ny
 
-    # number pixels
-    NAXIS1 = nx
-    NAXIS2 = ny
+#     # number pixels
+#     NAXIS1 = nx
+#     NAXIS2 = ny
 
-    wcs_input_dict = {
-        'CTYPE1': 'RA---TAN', 
-        'CUNIT1': 'deg', 
-        'CDELT1': CDELT1, #-0.0002777777778, 
-        'CRPIX1': 1, 
-        'CRVAL1': CRVAL1, #337.5202808, 
-        'NAXIS1': NAXIS1, #1024,
-        'CTYPE2': 'DEC--TAN', 
-        'CUNIT2': 'deg', 
-        'CDELT2': CDELT2, #0.0002777777778, 
-        'CRPIX2': 1, 
-        'CRVAL2': CRVAL2, #-20.833333059999998, 
-        'NAXIS2': NAXIS2 #1024
-    }
-    wcs_helix_dict = WCS(wcs_input_dict)
-    return wcs_helix_dict
-
-
-# def update_projection(ax, projection='3d', fig=None):
-#     if fig is None:
-#         fig = plt.gcf()
-#     rows, cols, start, stop = ax.get_subplotspec().get_geometry()
-#     ax.remove()
-#     ax = fig.add_subplot(rows, cols, start+1, projection=projection)
-#     return ax
+#     wcs_input_dict = {
+#         'CTYPE1': 'RA---TAN', 
+#         'CUNIT1': 'deg', 
+#         'CDELT1': CDELT1, #-0.0002777777778, 
+#         'CRPIX1': 1, 
+#         'CRVAL1': CRVAL1, #337.5202808, 
+#         'NAXIS1': NAXIS1, #1024,
+#         'CTYPE2': 'DEC--TAN', 
+#         'CUNIT2': 'deg', 
+#         'CDELT2': CDELT2, #0.0002777777778, 
+#         'CRPIX2': 1, 
+#         'CRVAL2': CRVAL2, #-20.833333059999998, 
+#         'NAXIS2': NAXIS2 #1024
+#     }
+#     wcs_helix_dict = WCS(wcs_input_dict)
+#     return wcs_helix_dict
 
 
-def get_image_of_the_sky_plot(plot_params, data, fig,
-                              iplot=None, nrows=None, ncols=None, 
-                              rng=np.random):
-    if iplot == None:
-        print('[ERROR]: need to specify iplot for "image of the sky" plots')
-        import sys; sys.exit()
-    if nrows == None:
-        print('[ERROR]: need to specify nrows for "image of the sky" plots')
-        import sys; sys.exit()
-    if ncols == None:
-        print('[ERROR]: need to specify ncols for "image of the sky" plots')
-        import sys; sys.exit()
+# # def update_projection(ax, projection='3d', fig=None):
+# #     if fig is None:
+# #         fig = plt.gcf()
+# #     rows, cols, start, stop = ax.get_subplotspec().get_geometry()
+# #     ax.remove()
+# #     ax = fig.add_subplot(rows, cols, start+1, projection=projection)
+# #     return ax
 
-    p = rng.uniform(0,1) # probability that has a colorbar
-    #pi = rng.uniform(0,1) # probability that is an image (vs a contour with lines)
-    choices = []; probs = []
-    for k,v in plot_params['image or contour']['prob'].items():
-        choices.append(k)
-        probs.append(v)
-    plot_type = rng.choice(choices, p=probs)
-    cax = []; side = ''
 
-    ### HERE -- flag for if distribution is "sky" or "gmm"
-    # create projection for GMM distributions
-    real_img_of_sky = False
-    if 'WCS' in data['data params']: # have "real" image of sky
-        wcs_helix = data['data params']['WCS']
-        real_img_of_sky = True
-        # grab x/y ranges
-        res_dict = plot_params['distribution']['sky']['resolution']
-        xres = rng.uniform(low=res_dict['min'], high=res_dict['max'])
-        yres = rng.uniform(low=res_dict['min'], high=res_dict['max'])
-        dx = int(round(data['data params']['sky image params']['original img size'][1]*(1-xres)/2.))
-        dy = int(round(data['data params']['sky image params']['original img size'][0]*(1-yres)/2.))
-        dx = max(0,dx); dy = max(0,dy)
-        xrange_plot = (dx,data['data params']['sky image params']['original img size'][1]-dx)
-        yrange_plot = (dy,data['data params']['sky image params']['original img size'][0]-dy)
-    else:
-        wcs_helix = create_sky_projection(data['xs'].min(), data['ys'].min(), 
-                                      data['xs'].max(), data['ys'].max(), 
-                                      len(data['xs']), len(data['ys']))
+# def get_image_of_the_sky_plot(plot_params, data, fig,
+#                               iplot=None, nrows=None, ncols=None, 
+#                               rng=np.random):
+#     if iplot == None:
+#         print('[ERROR]: need to specify iplot for "image of the sky" plots')
+#         import sys; sys.exit()
+#     if nrows == None:
+#         print('[ERROR]: need to specify nrows for "image of the sky" plots')
+#         import sys; sys.exit()
+#     if ncols == None:
+#         print('[ERROR]: need to specify ncols for "image of the sky" plots')
+#         import sys; sys.exit()
+
+#     p = rng.uniform(0,1) # probability that has a colorbar
+#     #pi = rng.uniform(0,1) # probability that is an image (vs a contour with lines)
+#     choices = []; probs = []
+#     for k,v in plot_params['image or contour']['prob'].items():
+#         choices.append(k)
+#         probs.append(v)
+#     plot_type = rng.choice(choices, p=probs)
+#     cax = []; side = ''
+
+#     ### HERE -- flag for if distribution is "sky" or "gmm"
+#     # create projection for GMM distributions
+#     real_img_of_sky = False
+#     if 'WCS' in data['data params']: # have "real" image of sky
+#         wcs_helix = data['data params']['WCS']
+#         real_img_of_sky = True
+#         # grab x/y ranges
+#         res_dict = plot_params['distribution']['sky']['resolution']
+#         xres = rng.uniform(low=res_dict['min'], high=res_dict['max'])
+#         yres = rng.uniform(low=res_dict['min'], high=res_dict['max'])
+#         dx = int(round(data['data params']['sky image params']['original img size'][1]*(1-xres)/2.))
+#         dy = int(round(data['data params']['sky image params']['original img size'][0]*(1-yres)/2.))
+#         dx = max(0,dx); dy = max(0,dy)
+#         xrange_plot = (dx,data['data params']['sky image params']['original img size'][1]-dx)
+#         yrange_plot = (dy,data['data params']['sky image params']['original img size'][0]-dy)
+#     else:
+#         wcs_helix = create_sky_projection(data['xs'].min(), data['ys'].min(), 
+#                                       data['xs'].max(), data['ys'].max(), 
+#                                       len(data['xs']), len(data['ys']))
     
-    # create ax with this projection
-    ax = fig.add_subplot(nrows, ncols, iplot + 1, projection=wcs_helix)
+#     # create ax with this projection
+#     ax = fig.add_subplot(nrows, ncols, iplot + 1, projection=wcs_helix)
     
-    if plot_type == 'contour':
-        nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
-                                              high=plot_params['nlines']['max'])))
-        #ax = update_projection(ax, projection=wcs_helix)
-        data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
-        if real_img_of_sky:
-            ax.set_xlim(xrange_plot)
-            ax.set_ylim(yrange_plot)
-        data_here = {'contour':data_here2}
-    elif plot_type == 'image':
-        real_x = data['xs']
-        real_y = data['ys']
-        dx = (real_x[1]-real_x[0])/2.
-        dy = (real_y[1]-real_y[0])/2.
-        #extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
-        #plt.imshow(data, extent=extent)
-        #ax = update_projection(ax, projection=wcs_helix)
-        data_here1 = ax.imshow(data['colors']) #, extent=extent)
-        if real_img_of_sky:
-            ax.set_xlim(xrange_plot)
-            ax.set_ylim(yrange_plot)
-        data_here = {'image':data_here1}
-    elif plot_type == 'both':
-        pg = rng.uniform(0,1)
-        grayContours = False
-        if pg <= plot_params['image or contour']['both contours']['prob gray']: # probability that contours are gray for "both" situation
-            grayContours = True
-        cmap = rng.choice(['gray', 'gray_r'])
-        real_x = data['xs']
-        real_y = data['ys']
-        dx = (real_x[1]-real_x[0])/2.
-        dy = (real_y[1]-real_y[0])/2.
-        #extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
-        #ax = update_projection(ax, projection=wcs_helix)
-        data_here1 = ax.imshow(data['colors'])#, extent=extent)
-        nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
-                                              high=plot_params['nlines']['max'])))
-        if not grayContours:
-            data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
-        else:
-            data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels,
-                                   cmap=cmap)
-        if real_img_of_sky:
-            ax.set_xlim(xrange_plot)
-            ax.set_ylim(yrange_plot)
+#     if plot_type == 'contour':
+#         nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
+#                                               high=plot_params['nlines']['max'])))
+#         #ax = update_projection(ax, projection=wcs_helix)
+#         data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
+#         if real_img_of_sky:
+#             ax.set_xlim(xrange_plot)
+#             ax.set_ylim(yrange_plot)
+#         data_here = {'contour':data_here2}
+#     elif plot_type == 'image':
+#         real_x = data['xs']
+#         real_y = data['ys']
+#         dx = (real_x[1]-real_x[0])/2.
+#         dy = (real_y[1]-real_y[0])/2.
+#         #extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
+#         #plt.imshow(data, extent=extent)
+#         #ax = update_projection(ax, projection=wcs_helix)
+#         data_here1 = ax.imshow(data['colors']) #, extent=extent)
+#         if real_img_of_sky:
+#             ax.set_xlim(xrange_plot)
+#             ax.set_ylim(yrange_plot)
+#         data_here = {'image':data_here1}
+#     elif plot_type == 'both':
+#         pg = rng.uniform(0,1)
+#         grayContours = False
+#         if pg <= plot_params['image or contour']['both contours']['prob gray']: # probability that contours are gray for "both" situation
+#             grayContours = True
+#         cmap = rng.choice(['gray', 'gray_r'])
+#         real_x = data['xs']
+#         real_y = data['ys']
+#         dx = (real_x[1]-real_x[0])/2.
+#         dy = (real_y[1]-real_y[0])/2.
+#         #extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
+#         #ax = update_projection(ax, projection=wcs_helix)
+#         data_here1 = ax.imshow(data['colors'])#, extent=extent)
+#         nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
+#                                               high=plot_params['nlines']['max'])))
+#         if not grayContours:
+#             data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
+#         else:
+#             data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels,
+#                                    cmap=cmap)
+#         if real_img_of_sky:
+#             ax.set_xlim(xrange_plot)
+#             ax.set_ylim(yrange_plot)
 
-        data_here = {'image':data_here1, 'contour':data_here2}
-    else:
-        print('not supported plot type!')
-        import sys; sys.exit()
+#         data_here = {'image':data_here1, 'contour':data_here2}
+#     else:
+#         print('not supported plot type!')
+#         import sys; sys.exit()
 
-    if not p <= plot_params['colormap contour']['prob']: # not have color map
-        pass 
-    else:
-        divider = make_axes_locatable(ax)
-        #print('divider:', divider)
+#     if not p <= plot_params['colormap contour']['prob']: # not have color map
+#         pass 
+#     else:
+#         divider = make_axes_locatable(ax)
+#         #print('divider:', divider)
 
-        # get probs
-        probs = []; choices = []
-        for k,v in plot_params['color bar']['location probs'].items():
-            probs.append(v); choices.append(k)
-        side = rng.choice(choices, p=probs)
-        size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
-                     high=plot_params['color bar']['size percent']['max'])
-        size = str(int(round(size*100)))+'%'
+#         # get probs
+#         probs = []; choices = []
+#         for k,v in plot_params['color bar']['location probs'].items():
+#             probs.append(v); choices.append(k)
+#         side = rng.choice(choices, p=probs)
+#         size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
+#                      high=plot_params['color bar']['size percent']['max'])
+#         size = str(int(round(size*100)))+'%'
 
-        pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
-                                 high=plot_params['color bar']['pad']['max'])
+#         pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
+#                                  high=plot_params['color bar']['pad']['max'])
         
-        #print('side, size, pad', side, size, pad)
+#         #print('side, size, pad', side, size, pad)
 
-        cax = divider.append_axes(side, size=size, pad=pad)
-        # the side of the axis
-        if side == 'right': # this maybe should become a random selection?
-            axis_side = 'right'
-            cax.yaxis.set_ticks_position(axis_side)
-        elif side == 'left':
-            axis_side = 'left'
-            cax.yaxis.set_ticks_position(axis_side)
-        elif side == 'top':
-            axis_side = 'top'
-            cax.xaxis.set_ticks_position(axis_side)
-        elif side == 'bottom':
-            axis_side = 'bottom'
-            cax.xaxis.set_ticks_position(axis_side)
-    plt.draw()
-    #print('DRAW WAS CALLED 3')
+#         cax = divider.append_axes(side, size=size, pad=pad)
+#         # the side of the axis
+#         if side == 'right': # this maybe should become a random selection?
+#             axis_side = 'right'
+#             cax.yaxis.set_ticks_position(axis_side)
+#         elif side == 'left':
+#             axis_side = 'left'
+#             cax.yaxis.set_ticks_position(axis_side)
+#         elif side == 'top':
+#             axis_side = 'top'
+#             cax.xaxis.set_ticks_position(axis_side)
+#         elif side == 'bottom':
+#             axis_side = 'bottom'
+#             cax.xaxis.set_ticks_position(axis_side)
+#     plt.draw()
+#     #print('DRAW WAS CALLED 3')
 
-    xerrs = []; yerrs = []
-    # plt.draw()
-    # cols = data_here.get_facecolors()
-    # elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
-    #                                              high=plot_params['error bars']['elinewidth']['max'])))
-    # if 'xerrs' in data:# and 'yerrs' not in data: # have x-errors
-    #     (_, caps, bars) = ax.errorbar(data['xs'],data['ys'],xerr=data['xerrs'],
-    #                                  linewidth=0,elinewidth=elinewidth,
-    #                                  markersize=0, ecolor=cols, zorder=0)
-    #     xerrs.append(bars)
-    # if 'yerrs' in data:# and 'xerrs' not in data: # have x-errors
-    #     (_, caps, bars) = ax.errorbar(data['xs'],data['ys'],yerr=data['yerrs'],
-    #                                  linewidth=0, elinewidth=elinewidth,
-    #                                  markersize=0, ecolor=cols, zorder=0)
-    #     yerrs.append(bars)
+#     xerrs = []; yerrs = []
+#     # plt.draw()
+#     # cols = data_here.get_facecolors()
+#     # elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
+#     #                                              high=plot_params['error bars']['elinewidth']['max'])))
+#     # if 'xerrs' in data:# and 'yerrs' not in data: # have x-errors
+#     #     (_, caps, bars) = ax.errorbar(data['xs'],data['ys'],xerr=data['xerrs'],
+#     #                                  linewidth=0,elinewidth=elinewidth,
+#     #                                  markersize=0, ecolor=cols, zorder=0)
+#     #     xerrs.append(bars)
+#     # if 'yerrs' in data:# and 'xerrs' not in data: # have x-errors
+#     #     (_, caps, bars) = ax.errorbar(data['xs'],data['ys'],yerr=data['yerrs'],
+#     #                                  linewidth=0, elinewidth=elinewidth,
+#     #                                  markersize=0, ecolor=cols, zorder=0)
+#     #     yerrs.append(bars)
         
-    # save data
-    if cax != []:
-        data_out = {'data':data_here, 'color bar':cax, 
-                    'color bar params':{'side':side, 'pad':pad, 'size':size, 
-                                       'axis side':axis_side,
-                                       'label prob': plot_params['color bar']['label prob']
-                        }#, 
-                                       #'marker':marker, 'marker size':marker_size}
-                   }
-    else:
-        data_out = {'data':data_here}
+#     # save data
+#     if cax != []:
+#         data_out = {'data':data_here, 'color bar':cax, 
+#                     'color bar params':{'side':side, 'pad':pad, 'size':size, 
+#                                        'axis side':axis_side,
+#                                        'label prob': plot_params['color bar']['label prob']
+#                         }#, 
+#                                        #'marker':marker, 'marker size':marker_size}
+#                    }
+#     else:
+#         data_out = {'data':data_here}
 
-    # save x/y limits if real image of sky
-    if real_img_of_sky:
-        data_out['x pixel limits'] = xrange_plot
-        data_out['y pixel limits'] = yrange_plot
+#     # save x/y limits if real image of sky
+#     if real_img_of_sky:
+#         data_out['x pixel limits'] = xrange_plot
+#         data_out['y pixel limits'] = yrange_plot
 
-    # add in x/y errors, if present
-    if 'xerrs' in data:
-        data_out['x error bars'] = xerrs
-    if 'yerrs' in data:
-        #print("YESS TO Y IN DATA")
-        data_out['y error bars'] = yerrs
-    if 'xerrs' in data or 'yerrs' in data:
-        data_out['error bar params']:{'elinewidth':elinewidth}
+#     # add in x/y errors, if present
+#     if 'xerrs' in data:
+#         data_out['x error bars'] = xerrs
+#     if 'yerrs' in data:
+#         #print("YESS TO Y IN DATA")
+#         data_out['y error bars'] = yerrs
+#     if 'xerrs' in data or 'yerrs' in data:
+#         data_out['error bar params']:{'elinewidth':elinewidth}
     
-    return data_out, ax
+#     return data_out, ax
 
 
 

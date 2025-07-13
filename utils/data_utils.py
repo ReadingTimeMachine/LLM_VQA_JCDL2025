@@ -7,7 +7,7 @@ from scipy.stats import loguniform
 #import distribution_utils
 #reload(distribution_utils)
 from utils.distribution_utils import get_random_data, \
-   get_linear_data, get_gmm_data, get_sky_image_data #, get_data
+   get_linear_data, get_gmm_data #, get_sky_image_data #, get_data
 
 
 # for saving numpy arrays
@@ -253,12 +253,12 @@ def get_image_of_the_sky_data(plot_params, distribution = 'random',
             print('[WARNING]: RA/DEC both in deg')
 
         #import sys; sys.exit()
-    elif distribution == 'sky':
-        #print('[ERROR]: not implemented yet!', distribution)
-        #distparams = plot_params['distribution']['sky'] # sky image info
-        #distparams['xy labels ra/dec'] = plot_params['xy labels ra/dec'] # pass RA/DEC formats
-        xs,ys,colors, data_params = get_sky_image_data(plot_params,
-                        cmin=cmin, cmax=cmax, rng=rng, verbose=verbose)
+    # elif distribution == 'sky':
+    #     #print('[ERROR]: not implemented yet!', distribution)
+    #     #distparams = plot_params['distribution']['sky'] # sky image info
+    #     #distparams['xy labels ra/dec'] = plot_params['xy labels ra/dec'] # pass RA/DEC formats
+    #     xs,ys,colors, data_params = get_sky_image_data(plot_params,
+    #                     cmin=cmin, cmax=cmax, rng=rng, verbose=verbose)
     else:
         print('[ERROR]: in data_utils (get_image_of_the_sky_data), no such distribution -', distribution)
 
