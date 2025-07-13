@@ -1,5 +1,12 @@
 ## Example Histograms with VQA
 
+### Directories
+* `example_hists/imgs` stores the example images (right now there are PDF and JPEG formats)
+* `example_hists/jsons` stores the jsons
+
+
+### The Data
+
 
 To load json (after setting `json_dir` to where the jsons are stored):
 ```python
@@ -47,3 +54,6 @@ prints out:
    'A': {'nbars ': 50}}}}
 ```
 
+## Example LLM Outputs
+
+Various example outputs from LLMs will be in the `LLM_output` subfolder in this directory.
