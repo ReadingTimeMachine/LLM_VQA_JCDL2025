@@ -5,6 +5,14 @@ from utils.plot_qa_utils import plot_index_to_words
 #q_stats_hists
 #q_gmm_ngaussians_hists
 
+def get_nplots(data):
+    # how many plots
+    nplots = 0
+    for k,v in data.items():
+        if 'plot' in k:
+            nplots += 1
+    return nplots
+
 def persona(text=None):
     """
     Craft a persona for the LLM to add into each question.
@@ -47,6 +55,8 @@ def context(nrow, ncol, plot_index = 0,
     return q
 
 
+##### FEEDER FUNCTIONS ######
+
 def how_many(object, big_tag, val_type = 'an integer', nplots = 1, use_words=True):
     q = 'How many '+object+' are there in the specified figure panel?'
     if use_words and nplots > 1:
@@ -59,7 +69,20 @@ def how_many(object, big_tag, val_type = 'an integer', nplots = 1, use_words=Tru
     format = 'Please format the output as a json as {"'+big_tag+'":""} for this figure panel, where the "'+big_tag+'" value should be '+val_type+'.'
     return q, adder, format
 
+def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float', use_words=True):
+    q = 'What are the '+big_tag+' data values in this figure panel? '
+    if use_words and nplots > 1:
+        adder = '(words)'
+    elif not use_words and nplots > 1:
+        adder = '(plot numbers)'
+    elif nplots == 1:
+        adder = ''
+    # formatting for output
+    format = 'Please format the output as a json as {"'+big_tag+' '+axis + '":""} for this figure panel, where the "'+big_tag+'" value should be '+val_type+', calculated from the '
+    format += 'data values used to create the plot.'
+    return q, adder, format
 
+####### CONSTRUCT QUESTIONS ########
 
 # this version tries to give column and row numbers
 def q_nbars_hist_plot_plotnums(data, qa_pairs, plot_num = 0, 
@@ -68,12 +91,7 @@ def q_nbars_hist_plot_plotnums(data, qa_pairs, plot_num = 0,
                                text_persona = None):
     big_tag = 'nbars'
     object = 'bars'
-    #adder = ''
-    # how many plots
-    nplots = 0
-    for k,v in data.items():
-        if 'plot' in k:
-            nplots += 1
+    nplots = get_nplots(data)
 
     ### persona of assistant
     text_persona = persona(text=text_persona)
@@ -108,6 +126,64 @@ def q_nbars_hist_plot_plotnums(data, qa_pairs, plot_num = 0,
                                                                                                         'format':text_format}}
         else:
             qa_pairs['Level 1']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}
+        return qa_pairs
+    
+
+def q_stats_hists(data, qa_pairs, stat = {'minimum':np.min}, plot_num = 0, 
+                     return_qa=True, use_words=True, verbose=True, 
+                     single_figure_flag=True):
+    """
+    stat: {'name':stat} which gives name of stat and function to calculate it, like {'minimum':np.min}
+    use_words : set to True to translate row, column to words; False will use C-ordering indexing
+    stat : dictionary of the name and function to use for each stat
+    """
+    big_tag = list(stat.keys())[0]
+    # get nplots    
+    nplots = get_nplots(data)
+
+    ### persona of assistant
+    text_persona = persona(text=text_persona)
+    ## context for question
+    if nplots == 1 and single_figure_flag:
+        text_context = context(0, 0, use_words=use_words,
+                                single_figure_flag=single_figure_flag)
+    else:
+        nrow = data['figure']['plot indexes'][plot_num][0]
+        ncol = data['figure']['plot indexes'][plot_num][1]
+        pindex = data['figure']['plot indexes'][plot_num]
+        text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
+
+    text_question, adder, text_format  = how_much_data_values(big_tag, nplots=1, 
+                                                              axis='x', 
+                                                              val_type='a float', 
+                                                              use_words=use_words)
+    
+    #### Answer
+    f = list(stat.values())[0] # what stastical function
+    xs = data['plot'+str(plot_num)]['data']['xs']
+    la = {big_tag + " x":f(xs)}#, big_tag + " y":f(ys)}
+    
+    ans = {big_tag + ' ' + adder:{'plot'+str(plot_num):la}} 
+    a = {big_tag + ' ' + adder:la}
+    # construct question:
+    q = text_persona + " " + text_context + " " + text_question + " " + text_format
+
+    if verbose:
+        print('QUESTION:', q)
+        print('ANSWER:', ans)
+    if return_qa: 
+        if big_tag + ' ' + adder not in qa_pairs['Level 2']['Plot-level questions']:
+            qa_pairs['Level 2']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}}
+        else:
+            qa_pairs['Level 2']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
                                                                                                         'persona':text_persona, 
                                                                                                         'context':text_context,
                                                                                                         'question':text_question, 
