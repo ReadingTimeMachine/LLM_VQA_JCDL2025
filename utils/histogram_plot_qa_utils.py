@@ -670,7 +670,7 @@ def q_gmm_ngaussians_hists(data, qa_pairs, plot_num = 0, return_qa=True, use_wor
     use_nlines : give the number of lines in the prompt
     """
 
-    big_tag_short = 'gmm ngaussians'
+    big_tag_short = 'ngaussians'
     #object = 'What are the parameters for the gaussian mixture model distribution used to create the histogram'
     object = 'How many gaussians have been used to generate the histogram'
 
