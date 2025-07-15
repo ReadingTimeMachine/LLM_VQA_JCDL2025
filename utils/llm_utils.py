@@ -3,6 +3,7 @@ from PIL import Image
 import base64
 import json
 import os
+import re
 
 # parsing
 def parse_qa(level_parse, plot_level, qa, j, types, 
