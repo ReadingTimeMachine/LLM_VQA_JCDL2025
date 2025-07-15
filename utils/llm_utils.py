@@ -113,7 +113,10 @@ def get_img_json_pair(img_path, json_path, dir_api,
     base_file = json_path.split('/')[-1].removesuffix('.json')
     if os.path.exists(dir_api + base_file + '.pickle') and not restart:
         if verbose: print('have file already:', dir_api + base_file + '.pickle')
-        return '','', True
+        if not return_image_format:
+            return '','', True
+        else:
+            return '', '', '', True
     # do we have it?
     try:
         #image_path = '/Users/jnaiman/Downloads/data_full_v2/Picture'+str(int(iFile))+'.png'
@@ -127,7 +130,10 @@ def get_img_json_pair(img_path, json_path, dir_api,
     except Exception as e:
         if verbose: print('[ERROR]:', str(e))
         err = True
-        return '','', True
+        if not return_image_format:
+            return '','', True
+        else:
+            return '', '', '', True
     
     return encoded_image, img_format, j, err
 
