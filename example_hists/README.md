@@ -59,8 +59,12 @@ datas['VQA']['Level 1']['Plot-level questions']
 ```
 prints out:
 ```python
-{'nbars ': {'plot0': {'Q': 'How many bars are there on the figure? You are a helpful assistant, please format the output as a json as {"nbars":""} for this figure panel, where the "nbars" value should be an integer.',
-   'A': {'nbars ': 50}}}}
+{'nbars ': {'plot0': {'Q': 'You are a helpful assistant that can analyze images.  How many bars are there in the specified figure panel? Please format the output as a json as {"nbars":""} for this figure panel, where the "nbars" value should be an integer.',
+   'A': {'nbars ': 50},
+   'persona': 'You are a helpful assistant that can analyze images.',
+   'context': '',
+   'question': 'How many bars are there in the specified figure panel?',
+   'format': 'Please format the output as a json as {"nbars":""} for this figure panel, where the "nbars" value should be an integer.'}}}
 ```
 
 ## Example LLM Outputs
