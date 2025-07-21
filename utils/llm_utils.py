@@ -98,12 +98,14 @@ def get_img_json_pair(img_path, json_path, dir_api,
                       fac = 1.0, 
                       img_format = 'png',
                       return_image_format = True,
-                      restart = False, verbose = True):
+                      restart = False, verbose = True, 
+                      load_image = True):
     """
     img_path : where image file is stored
     json_path : where json path is stored
     dir_api : where we can look for prior, saved pickles, if applicable
     fac : do we want to downsize the image? IF so, set to < 1
+    load_image : if set to False, doesn't load image but tries to figure out format from suffix
 
     returns: encoded image, full json from creation run, error
       encoded image and full json are empty strings if error is True
@@ -120,9 +122,13 @@ def get_img_json_pair(img_path, json_path, dir_api,
     # do we have it?
     try:
         #image_path = '/Users/jnaiman/Downloads/data_full_v2/Picture'+str(int(iFile))+'.png'
-        encoded_image, img_format = load_image(img_path, fac=fac, tmp_dir=tmp_dir, 
+        if load_image:
+            encoded_image, img_format = load_image(img_path, fac=fac, tmp_dir=tmp_dir, 
                                                img_format=img_format, 
                                                return_image_format=return_image_format)
+        else:
+            encoded_image = ''
+            img_format = img_path.split('.')[-1]
         # get questions
         with open(json_path,'r') as f:
             j = json.loads(f.read())
