@@ -2,12 +2,8 @@ import numpy as np
 import json
 from scipy.stats import loguniform
 
-#from importlib import reload
-
-#import distribution_utils
-#reload(distribution_utils)
 from utils.distribution_utils import get_random_data, \
-   get_linear_data, get_gmm_data #, get_sky_image_data #, get_data
+   get_linear_data, get_gmm_data 
 
 
 # for saving numpy arrays
@@ -81,208 +77,13 @@ def get_contour_data(plot_params, distribution = 'random',
                                   npoints=(nx,ny),
                                   #zmin=cmin, zmax=cmax) 
                                   cmin=cmin, cmax=cmax, rng=rng, function=rng.uniform) 
-    
-    # elif distribution == 'image of the sky':
-    #     #print("HERE data utils 1")
-    #     # gmm or image of sky (or other, if ever implemented)
-    #     choices = []; probs = []
-    #     #print(plot_params[distribution])
-    #     for k,v in plot_params['distribution'][distribution]['distribution or sky'].items():
-    #         choices.append(k)
-    #         probs.append(v)
-
-    #     #print(choices)
-    #     #print(probs)
-
-    #     img_distribution = np.random.choice(choices, p=probs)
-    #     if img_distribution == 'gmm': # pull random x/y
-    #         if verbose:
-    #             print('image of sky w/GMM, overwriting xmin/xmax/ymin/ymax')
-
-    #         xy_params = plot_params['distribution']['image of the sky']['centers']
-    #         print(xy_params)
-    #         if xy_params['center_scale']['scale'] != 'log':
-    #             print('[ERROR]: in data_utils -- wrong scale selected:', xy_params['scale']) 
-    #         else:
-    #             scale = loguniform.rvs(xy_params['center_scale']['min'], xy_params['center_scale']['max'], size=1)[0] # in arcsec
-    #             # to deg (ra/dec in deg)
-    #             scale /= 60*60
-
-    #         # pick x/y center
-    #         x_center = np.random.uniform(low=xy_params['center_ra']['min'], high=xy_params['center_ra']['max'])
-    #         y_center = np.random.uniform(low=xy_params['center_dec']['min'], high=xy_params['center_dec']['max'])
-
-    #         xmin = x_center-scale*0.5; xmax = x_center + scale*0.5
-    #         ymin = y_center -scale*0.5; ymax = y_center +scale*0.5
-    #         if verbose:
-    #             print('[WARNING]: for gmm image of sky, assume same scale in x/y')
-    #             print('   x (RA):', xmin, xmax)
-    #             print('   y (DEC):', ymin, ymax)
-
-    #         distparams = plot_params['distribution']['gmm'] # use GMM params for creation
-
-    #         xs,ys,colors, data_params = get_gmm_data('contour',
-    #                                         distparams,
-    #                                         xmin,xmax,ymin,ymax,
-    #                         npoints=(nx,ny),
-    #                         zmin=cmin, zmax=cmax) 
-    #         if verbose:
-    #             print('[WARNING]: RA/DEC both in deg')
-    #     # special things for x/y if image of sky
-    #     else:
-    #         print('[WARNING]: In data_utils -- no such img_distribution:', img_distribution)
-    #     #import sys; sys.exit()
 
     # do we have x/y error bars?
     hasXErr = False; hasYErr = False
     xerr,yerr = [],[] # x/y error maybe later
 
-    # if np.random.uniform(0,1) <= plot_params['error bars']['x']['prob']: # yes
-    #     hasXErr = True
-    #     scale = xmax-xmin
-    #     xerr = np.random.uniform(low=plot_params['error bars']['x']['size']['min']*scale, 
-    #                              high=plot_params['error bars']['x']['size']['max']*scale,
-    #                              size=npoints)
-    # if np.random.uniform(0,1) <= plot_params['error bars']['y']['prob']: # yes
-    #     hasYErr = True
-    #     scale = ymax-ymin
-    #     yerr = np.random.uniform(low=plot_params['error bars']['y']['size']['min']*scale, 
-    #                              high=plot_params['error bars']['y']['size']['max']*scale,
-    #                              size=npoints)
-
-    #print(xerr)
-    #print(yerr)
-    #print('AT END OF DATA UTILS')
     return xs, ys, colors, xerr, yerr, data_params
 
-####################################################
-############## IMAGE OF THE SKY DATA ###############
-####################################################
-
-def get_image_of_the_sky_data(plot_params, distribution = 'random',
-                     verbose=True, rng=np.random):
-    """
-    plot_params : directory with plot params
-    """
-    data_params = {}
-    nx = int(round(rng.uniform(low=plot_params['npoints']['nx']['min'], 
-                                          high=plot_params['npoints']['nx']['max'])))
-    ny = int(round(rng.uniform(low=plot_params['npoints']['ny']['min'], 
-                                          high=plot_params['npoints']['ny']['max'])))
-    
-    if 'xmin' in plot_params and 'xmax' in plot_params:
-        xmin,xmax = plot_params['xmin'],plot_params['xmax']
-        ymin,ymax = plot_params['ymin'],plot_params['ymax']
-
-        x1 = rng.uniform(low=xmin, high=xmax)
-        x2 = rng.uniform(low=xmin, high=xmax)
-        if x1<x2:
-            xmin = x1; xmax = x2
-        else:
-            xmin=x2; xmax=x1
-
-    if 'ymin' in plot_params and 'ymax' in plot_params:
-        y1 = rng.uniform(low=ymin, high=ymax)
-        y2 = rng.uniform(low=ymin, high=ymax)
-        if y1<y2:
-            ymin = y1; ymax = y2
-        else:
-            ymin=y2; ymax=y1
-
-    c1 = rng.uniform(low=plot_params['colors']['min'], 
-                           high=plot_params['colors']['max'])
-    c2 = rng.uniform(low=plot_params['colors']['min'], 
-                           high=plot_params['colors']['max'])
-    if c1<c2:
-        cmin = c1; cmax = c2
-    else:
-        cmin=c2; cmax=c1
-
-    if distribution == 'gmm':
-        if verbose:
-            print('image of sky w/GMM, overwriting xmin/xmax/ymin/ymax')
-
-        xy_params = plot_params['distribution'][distribution]['centers']
-        #print(xy_params)
-        if xy_params['center_scale']['scale'] != 'log':
-            print('[ERROR]: in data_utils -- wrong scale selected:', xy_params['scale']) 
-        else:
-            scale = loguniform.rvs(xy_params['center_scale']['min'], 
-                                   xy_params['center_scale']['max'], size=1, 
-                                   random_state=rng)[0] # in arcsec
-            # to deg (ra/dec in deg)
-            scale /= 60*60
-
-        # pick x/y center
-        x_center = rng.uniform(low=xy_params['center_ra']['min'], high=xy_params['center_ra']['max'])
-        y_center = rng.uniform(low=xy_params['center_dec']['min'], high=xy_params['center_dec']['max'])
-
-        xmin = x_center-scale*0.5; xmax = x_center + scale*0.5
-        ymin = y_center -scale*0.5; ymax = y_center +scale*0.5
-
-        # checks for in bounds
-        dx = xmax-xmin; dy = ymax-ymin
-        if xmin < xy_params['center_ra']['min']: # shift
-            xmin = xy_params['center_ra']['min']
-            xmax = xmin + dx
-        if xmax > xy_params['center_ra']['max']:
-            xmax = xy_params['center_ra']['max']
-            xmin = xmax - dx
-        if ymin < xy_params['center_dec']['min']:
-            ymin = xy_params['center_dec']['min']
-            ymax = ymin + dy
-        if ymax > xy_params['center_dec']['max']:
-            ymax = xy_params['center_dec']['max']
-            ymin = ymax - dy
-
-        if verbose:
-            print('[WARNING]: for gmm image of sky, assume same scale in x/y')
-            print('   x (RA):', xmin, xmax)
-            print('   y (DEC):', ymin, ymax)
-
-        distparams = plot_params['distribution']['gmm'] # use GMM params for creation
-
-        xs,ys,colors, data_params = get_gmm_data('contour', # using contour for this
-                                        distparams,
-                                        xmin,xmax,ymin,ymax,
-                        npoints=(nx,ny),
-                        #zmin=cmin, zmax=cmax) 
-                        cmin=cmin, cmax=cmax, rng=rng, function=rng.uniform) 
-
-        if verbose:
-            print('[WARNING]: RA/DEC both in deg')
-
-        #import sys; sys.exit()
-    # elif distribution == 'sky':
-    #     #print('[ERROR]: not implemented yet!', distribution)
-    #     #distparams = plot_params['distribution']['sky'] # sky image info
-    #     #distparams['xy labels ra/dec'] = plot_params['xy labels ra/dec'] # pass RA/DEC formats
-    #     xs,ys,colors, data_params = get_sky_image_data(plot_params,
-    #                     cmin=cmin, cmax=cmax, rng=rng, verbose=verbose)
-    else:
-        print('[ERROR]: in data_utils (get_image_of_the_sky_data), no such distribution -', distribution)
-
-    # do we have x/y error bars?
-    hasXErr = False; hasYErr = False
-    xerr,yerr = [],[] # x/y error maybe later
-
-    # if np.random.uniform(0,1) <= plot_params['error bars']['x']['prob']: # yes
-    #     hasXErr = True
-    #     scale = xmax-xmin
-    #     xerr = np.random.uniform(low=plot_params['error bars']['x']['size']['min']*scale, 
-    #                              high=plot_params['error bars']['x']['size']['max']*scale,
-    #                              size=npoints)
-    # if np.random.uniform(0,1) <= plot_params['error bars']['y']['prob']: # yes
-    #     hasYErr = True
-    #     scale = ymax-ymin
-    #     yerr = np.random.uniform(low=plot_params['error bars']['y']['size']['min']*scale, 
-    #                              high=plot_params['error bars']['y']['size']['max']*scale,
-    #                              size=npoints)
-
-    #print(xerr)
-    #print(yerr)
-    #print('AT END OF DATA UTILS')
-    return xs, ys, colors, xerr, yerr, data_params
 
 
 ############################################################
@@ -600,18 +401,6 @@ def get_data(plot_params, plot_type='line', distribution='random', #npoints = 10
         xs, ys, color_grid,xerr,yerr, data_params = get_contour_data(plot_params,
                                                        distribution=distribution, 
                                                        rng=rng,
-                                                           verbose=verbose)
-        data = {'xs':xs, 'ys': ys, 'colors':color_grid}
-        if len(xerr) > 0:
-            data['xerrs'] = xerr
-        if len(yerr) > 0:
-            data['yerrs'] = yerr
-        if data_params != {}:
-            data['data params'] = data_params
-        return data
-    elif plot_type == 'image of the sky':
-        xs, ys, color_grid,xerr,yerr, data_params = get_image_of_the_sky_data(plot_params,
-                                                       distribution=distribution, rng=rng,
                                                            verbose=verbose)
         data = {'xs':xs, 'ys': ys, 'colors':color_grid}
         if len(xerr) > 0:
