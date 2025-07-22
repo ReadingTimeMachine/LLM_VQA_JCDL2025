@@ -213,7 +213,7 @@ def normalize_params_prob(plot_types_params, panel_params,
 
     # images or contours
     # 'image or contour':{'prob':{'image':0.5, 'contour':0.5, 'both':0.5}
-    for ptype in ['contour', 'image of the sky']:
+    for ptype in ['contour']:
         if ptype in plot_types_params:
             p = 0.0
             for k,v in plot_types_params[ptype]['color bar']['location probs'].items():
@@ -237,19 +237,9 @@ def normalize_params_prob(plot_types_params, panel_params,
                     print('renormalizing...')
                     print('now: ', plot_types_params[ptype]['image or contour']['prob'])
 
-        # # image of the sky
-        # p = 0.0
-        # if 'image of the sky' in plot_types_params['contour']['distribution']:
-        #     for dist,pval in plot_types_params['contour']['distribution']['image of the sky']['distribution or sky'].items():
-        #         p += pval
-        #     if p != 1.0:
-        #         ps = plot_types_params['contour']['distribution']['image of the sky']['distribution or sky'].copy()
-        #         for k,v in plot_types_params['contour']['distribution']['image of the sky']['distribution or sky'].items():
-        #             ps[k]['prob'] = v['prob']/p
-        #         plot_types_params['contour']['distribution']['image of the sky']['distribution or sky'] = ps
     # distribution probabilities
     #print('')
-    for k1 in ['line','histogram','scatter','contour', 'image of the sky']:
+    for k1 in ['line','histogram','scatter','contour']:
         if k1 in plot_types_params:
             p=0
             if 'distribution' in plot_types_params[k1]:
@@ -271,6 +261,8 @@ def normalize_params_prob(plot_types_params, panel_params,
                         print('now: ', ps)
 
     return plot_types_params, panel_params, title_params, xlabel_params, ylabel_params
+
+
 
 
 def get_ticks_not_imgOfSky(ticklabels, ticklines, fig=None, dpi=None):
@@ -315,167 +307,18 @@ def get_ticks_not_imgOfSky(ticklabels, ticklines, fig=None, dpi=None):
     return xticks
 
 
-# image of the sky, from coordinate helper of astropy
-def get_xy_dx_dy(tl, fig, i, bb, axis='b'):
-    """
-    i is number of the tick
-    """                  
-    #renderer = fig.canvas.renderer 
-    # Set initial position and find bounding box
-    # self.set_text(self.text[axis][i])
-    # self.set_position((x, y))
-    # bb = super().get_window_extent(renderer)
-    pad = fig.canvas.renderer.points_to_pixels(tl.get_pad() + tl._tick_out_size)
-    x, y = tl._frame.parent_axes.transData.transform(tl.data[axis][i])
-
-
-    # Find width and height, as well as angle at which we
-    # transition which side of the label we use to anchor the
-    # label.
-    width = bb.width
-    height = bb.height
-
-    # Project axis angle onto bounding box
-    ax = np.cos(np.radians(tl.angle[axis][i]))
-    ay = np.sin(np.radians(tl.angle[axis][i]))
-
-    # Set anchor point for label
-    if np.abs(tl.angle[axis][i]) < 45.0:
-        dx = width
-        dy = ay * height
-    elif np.abs(tl.angle[axis][i] - 90.0) < 45:
-        dx = ax * width
-        dy = height
-    elif np.abs(tl.angle[axis][i] - 180.0) < 45:
-        dx = -width
-        dy = ay * height
-    else:
-        dx = ax * width
-        dy = -height
-
-    dx *= 0.5
-    dy *= 0.5
-
-    # Find normalized vector along axis normal, so as to be
-    # able to nudge the label away by a constant padding factor
-
-    dist = np.hypot(dx, dy)
-
-    ddx = dx / dist
-    ddy = dy / dist
-
-    dx += ddx * pad
-    dy += ddy * pad
-
-    x = x - dx
-    y = y - dy
-
-    return x, y, dx, dy
-
-
-def get_ticks_imgOfSky(ax1, axis, fig, verbose=False, 
-                       subtracty = False):
-
-    # how many axes for this ax object
-    ncoords = len(ax1.coords._coords)
-
-    # determine x/y axis
-    if axis == 'x':
-        visible_coords = ['b','t']
-    elif axis == 'y':
-        visible_coords = ['l','r']
-    else:
-        print('[ERROR]: in get_ticks_imgOfSky in synthetic_fig_utils -- no axis for:', axis)
-        import sys; sys.exit()
-
-    # get x/y size of image
-    xsize,ysize = fig.get_size_inches()*fig.dpi # size in pixels
-
-    ticks_out_full = []
-
-    for icoord in range(ncoords): # all coords (x/y) in axis
-        # is axis visible? get list
-        is_vis = ax1.coords[icoord]._ticklabels.get_visible_axes()
-
-        for sidecoord in visible_coords:
-            if sidecoord not in is_vis or sidecoord == '#':
-                #if verbose: print('coord not visible:', sidecoord)
-                continue
-
-            # tick labels
-            ticklabels1 = ax1.coords[icoord]._ticklabels
-
-            # tick locations
-            ticks = ax1.coords[icoord]._ticks
-
-            # text
-            texts = ax1.coords[icoord]._ticklabels.text[sidecoord]
-
-            nticks = len(ticklabels1.text[sidecoord])
-
-            # format: (text, xmin,ymin, xmax, ymax, tick_x, tick_y)
-            ticks_out = []
-
-            for i in range(nticks):
-                #tout = {}
-                bb = ticklabels1._get_bb(sidecoord,i,ax1.get_figure().canvas.renderer)
-                # if bb is None, this means that there is no tick label there (empty)
-                if bb is None:
-                    continue
-                xmin,ymin, dx, dy = get_xy_dx_dy(ticklabels1, fig, i, bb, axis=sidecoord)
-                xmin -= bb.width/2
-                ymin -= bb.height/2
-
-                xmax = xmin + bb.width
-                ymax = ymin + bb.height
-
-                if subtracty:
-                    ymin = ysize-ymin
-                    ymax = ysize-ymax
-
-                # get tick locations too
-                tickxy = ticks._frame.parent_axes.transData.transform(ticks.ticks_locs[sidecoord][i][0])
-                xt = tickxy[0]
-                yt = tickxy[1]
-                if subtracty:
-                    yt = yt-tickxy[1]
-
-                # format: (text, xmin,ymin, xmax, ymax, tick_x, tick_y)
-                ticks_out.append((texts[i],xmin,ymin,xmax,ymax,xt,yt))
-
-            if len(ticks_out)>0:
-                ticks_out_full.append(ticks_out)
-                #print('ticksout', ticks_out)
-
-    # check
-    if len(ticks_out_full) > 1:
-        print('[ERROR]: more than 1 x/y axis not implemented!')
-        print('  In: get_ticks_imgOfSky in synthetic_fig_utils')
-        print(len(ticks_out_full))
-        print(ticks_out_full)
-        import sys; sys.exit()
-
-    ticks = ticks_out_full[0]
-    return ticks
-
-
-
 
 def get_ticks(ax, plot_type, axis, fig=None, dpi=None, minor=False, verbose = False):
-    if plot_type != 'image of the sky':
-        if axis == 'x':
-            ticklabels,ticklines = ax.get_xticklabels(), ax.get_xticklines(minor=minor)
-        elif axis == 'y':
-            ticklabels,ticklines = ax.get_yticklabels(), ax.get_yticklines(minor=minor)
-        else:
-            print('[ERROR]: in "get_ticks" in synthetic_fig_utils -- no axis type for:', axis)
-            import sys; sys.exit()
-
-        # JPN -- default is None DPI and fig!
-        ticks = get_ticks_not_imgOfSky(ticklabels, ticklines, fig=None, dpi=None)
+    if axis == 'x':
+        ticklabels,ticklines = ax.get_xticklabels(), ax.get_xticklines(minor=minor)
+    elif axis == 'y':
+        ticklabels,ticklines = ax.get_yticklabels(), ax.get_yticklines(minor=minor)
     else:
-        ticks = get_ticks_imgOfSky(ax, axis, fig, verbose=verbose)
+        print('[ERROR]: in "get_ticks" in synthetic_fig_utils -- no axis type for:', axis)
+        import sys; sys.exit()
 
+    # JPN -- default is None DPI and fig!
+    ticks = get_ticks_not_imgOfSky(ticklabels, ticklines, fig=None, dpi=None)
 
     return ticks
 
@@ -510,7 +353,6 @@ def get_titles_or_labels(words, cap, eq, inlines, nwords=1, rng=np.random):
     plot_type : some plots have special tags
     x_or_y : specify x or y for special plots
     """
-    #if plot_type != 'image of the sky':
     if rng == np.random:
         i = rng.randint(0,len(words),size=nwords)
     else:

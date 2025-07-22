@@ -172,48 +172,7 @@ def add_annotations(imgplot, img, datas_plot, verbose = True, csize = 5,
                         cv.circle(imgplot, (int(x), int(y)), csize, color4, -1)
                 if 'color bar' in v:
                     #print('ding')
-                    imgplot = plot_color_bar(v,img,imgplot)
-            elif v['type'] == 'image of the sky':
-                # get mods
-                if 'sky image params' in v['data']['data params']:
-                    ymod = v['data']['data params']['sky image params']['original img size'][1]
-                    xmod = v['data']['data params']['sky image params']['original img size'][0]
-                    mx = 1 # should this be 1 or 0?
-                    #print('have xy mod:', xmod, ymod)
-                if v['data pixels']['image'] != {}:
-                    xs = v['data pixels']['image']['xsc']
-                    ys = v['data pixels']['image']['ysc']
-                    #print('len xs, ys:', len(xs), len(ys))
-                    if 'x pixel limits' not in v['data from plot']: # no limits
-                        for ixy,(x,y) in enumerate(zip(xs,ys)):
-                            cv.circle(imgplot, (int(x), int(y)), csize, color3, -1)
-                    else:
-                        #print('checking limits')
-                        for ixy,(x,y) in enumerate(zip(xs,ys)):
-                            # check limits
-                            # JPN -- not sure about the -1!
-                            if (ixy-mx)//xmod > v['data from plot']['x pixel limits'][0] and \
-                                (ixy-mx)//xmod < v['data from plot']['x pixel limits'][1] and \
-                                    ixy%ymod > v['data from plot']['y pixel limits'][0] and \
-                                        ixy%ymod < v['data from plot']['y pixel limits'][1]:
-                                cv.circle(imgplot, (int(x), int(y)), csize, color3, -1)                                
-                if v['data pixels']['contour'] != {}:
-                    xs = v['data pixels']['contour']['xs']
-                    ys = v['data pixels']['contour']['ys']
-                    if 'x pixel limits' not in v['data from plot']: # no limits
-                        for x,y in zip(xs,ys):
-                            cv.circle(imgplot, (int(x), int(y)), csize, color4, -1)
-                    else:
-                        for ixy,(x,y) in enumerate(zip(xs,ys)):
-                            # check limits
-                            # JPN -- not sure about the -1!
-                            if (ixy-mx)//xmod > v['data from plot']['x pixel limits'][0] and \
-                                (ixy-mx)//xmod < v['data from plot']['x pixel limits'][1] and \
-                                    ixy%ymod > v['data from plot']['y pixel limits'][0] and \
-                                        ixy%ymod < v['data from plot']['y pixel limits'][1]:
-                                cv.circle(imgplot, (int(x), int(y)), csize, color4, -1)    
-                if 'color bar' in v:
-                    imgplot = plot_color_bar(v,img,imgplot)                
+                    imgplot = plot_color_bar(v,img,imgplot)              
             else:
                 print('no idea how to deal with this plot type! Plot type = ', v['type'])
                 import sys; sys.exit()

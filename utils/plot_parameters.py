@@ -173,7 +173,7 @@ plot_types_params = {
                              } # end gmm for scatter plots
                          } # end distribution for line plots
                        }, # end scatter plots
-                    # images of the sky are a separate thing
+                    # contour plots
                      'contour':{'prob':1,                        
                          'npoints':{'nx':{'min':10,'max':500}, 'ny':{'min':10,'max':500}}, 
                          'nlines':{'min':3, 'max':10}, # number of contour lines
@@ -217,75 +217,8 @@ plot_types_params = {
                                  'color noise prob': 0.5 # gmm relationship between x/y and color?
                              }, # end gmm for contour plots 
                             } # end distribution for contour plots 
-                        }, # end contour plots
-                     'image of the sky':{'prob':1,                        
-                         'npoints':{'nx':{'min':10,'max':500}, 'ny':{'min':10,'max':500}}, 
-                         'nlines':{'min':3, 'max':10}, # number of contour lines
-                         # 'markers':{
-                         #       'size':{'min':1, 'max':30}
-                         #        },
-                         'colors':{'min':-100, 'max':100}, # values for the colors to have
-                         'colormap contour':{'prob':0.95}, # prob for contour plot to have a colormap
-                         'color bar':{'location probs':{'right':0.5, 
-                                                        'left':0.05, 
-                                                        'top':0.25, 
-                                                        'bottom':0.05},
-                                        'label prob': 0.5, # prob has label
-                                     'size percent':{'min':0.05, 'max':0.15},
-                                     'pad':{'min':0.01, 'max':0.2}
-                                     },
-                         'image or contour':{'prob':{'image':1, 
-                                                     'contour':1, 
-                                                     'both':1}, # probability that this is just an image w/o contour lines (or both) 
-                                            'both contours':{'prob gray': 0.95, # probability that you'll have just gray colors for contours
-                                                            }
-                                            },
-                        'xy labels ra/dec':[
-                            {'x':'ra', 'y':'dec'},
-                            {'x':'ra.', 'y':'dec.'},
-                            {'x':'right ascension', 'y':'declination'},
-                            {'x':r'$\alpha$', 'y':r'$\delta$'}
-                                     ], # ra/dec pairs possible (all lower case)
-                        'show temporal':{'prob':0.5, 
-                                         'styles':[{'start':'J','end':''}, 
-                                                   {'start':'(J', 'end':')'},
-                                                   {'start': '(', 'end':')'},
-                                                   {'start':'(B', 'end':')'}
-                                                   ]
-                                         }, # show things like "J2000", "(J1950)", etc
-                         'distribution': {
-                            #  'random':{'prob':0}, # currently not supported!
-                            #  'linear':{'prob':0, # currently not supported!
-                            #            'intersect':(-100,100), # range of "a" in mx + a
-                            #            'slope':(-5, 5), # range of "m" in mx + a
-                            #            'noise':(0, 0.25) # noise % range 
-                            #           }, # currently not supported!
-                             'gmm':{ # contour gaussian mixture model
-                                 'prob':1, 
-                                 'nclusters':{'min':1, 'max':500},
-                                 'upsample factor log':{'min':0, 'max':0.5}, # upsample number of points, 10^X (was 2, 6)
-                                 'cluster std':{'min':-1, 'max':1.5}, # in terms of factors of the x/y ranges
-                                 'noise':{'min':0.05,'max':0.25}, # for noise in distribution and color when applicable
-                                 'color noise prob': 0.5, # gmm relationship between x/y and color?
-                                 'centers':{ # use random center and scale for gmm (and maybe sky images -- JPN would need to implement)
-                                                'center_ra':{'min':0, 'max': 360}, # in deg
-                                                'center_dec':{'min':-90, 'max':90 }, # in deg
-                                                'center_scale':{'min':0.001*60*60, 'max': 10*60*60, 'scale':'log'} # arcsec, from milliarcsec to deg, specify scale
-                                            } # end centers 
-                               }, # end gmm for image of the sky 
-                             'sky':{ # grab image of sky
-                                 'prob':1, 
-                                 # these contain combos of object + wavelength from our historical corpus
-                                'object wavelength table':'object_wavelength_pairs.pickle',
-                                # where to store images once they have been queried & downloaded
-                                'query images dir':'astroquery_images/', 
-                                'missing obj/surveys list':'obj_survey_missing_list.csv',
-                                'image width':300, # 300 for h & w are astroquery defaults
-                                'image height':300,
-                                'resolution':{'min':0.5, 'max':1.0} # what percentage along axis to take each image
-                             } # end sky distribution 
-                           } # end distribution for image of the sky
-                    } # end image of the sky plots
+                        } # end contour plots
+
                              
 } # end specificiations
 

@@ -176,62 +176,6 @@ def get_data_pixel_locations(data_from_plot, plot_type, ax, width, height):
         dataout = {
                 'image':image,
                 'contour':contour
-                # JPN HERE -- need tag for is image of sky
-                  }
-        return dataout
-    elif plot_type == 'image of the sky':
-        xpix_c = []; ypix_c = []
-        xpix_im = []; ypix_im = []
-        image = {}; contour = {}
-        if 'image' in datas: # has image
-            xmin,xmax,ymin,ymax = datas['image'].get_extent()
-            sh = datas['image'].get_array().shape
-            xs1 = np.linspace(xmin,xmax, sh[1]+1) # bin edges
-            ys1 = np.linspace(ymin,ymax, sh[0]+1) # bin edges
-            xsc1 = 0.5*(xs1[1:] + xs1[:-1])
-            ysc1 = 0.5*(ys1[1:] + ys1[:-1])
-            # unravel
-            xs = []; ys = []
-            for x in xs1:
-                for y in ys1:
-                    xs.append(x); ys.append(y)
-            xpix_im,ypix_im = transform(xs,ys, ax, height)
-            xsc = []; ysc = []
-            for x in xsc1:
-                for y in ysc1:
-                    xsc.append(x); ysc.append(y)
-            xpix_imc,ypix_imc = transform(xsc,ysc, ax, height)
-            # colors
-            #data_from_plot['data']['image'].cmap
-            colors = datas['image'].cmap(datas['image'].norm(np.unique(datas['image'].get_array())))
-            image = {'xs':xpix_im, 'ys':ypix_im, 'xsc':xpix_imc, 'ysc':ypix_imc, 'colors':colors}.copy()
-        if 'contour' in datas: # has image
-            #xmin,xmax,ymin,ymax = datas['contour'].get_extent()
-            #sh = datas['contour'].get_array().shape
-            #>> cs = plt.contour(x,y,m, [9.5])
-            # get contour verticies
-            # paths = datas['contour'].collections[0].get_paths()
-            # xs1 = np.linspace(xmin,xmax, sh[1]+1) # bin edges
-            # ys1 = np.linspace(ymin,ymax, sh[0]+1) # bin edges
-            # xsc1 = 0.5*(xs1[1:] + xs1[:-1])
-            # ysc1 = 0.5*(ys1[1:] + ys1[:-1])
-            xs,ys = [], []
-            for d in datas['contour'].allsegs:
-                if len(d) > 1:
-                    for dd in d:
-                        for x,y in dd:
-                            xs.append(x); ys.append(y)  # for element j, in level i
-
-            xpix_imv,ypix_imv = transform(xs,ys, ax, height)
-            # colors
-            #data_from_plot['data']['image'].cmap
-            colors = datas['contour'].cmap(datas['contour'].norm(np.unique(datas['contour'].get_array())))
-            contour = {'xs':xpix_imv, 'ys':ypix_imv, 'colors':colors}.copy()
-
-        dataout = {
-                'image':image,
-                'contour':contour
-                # JPN HERE -- need tag for is image of sky
                   }
         return dataout
     else:
