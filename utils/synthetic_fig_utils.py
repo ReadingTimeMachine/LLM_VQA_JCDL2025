@@ -477,3 +477,52 @@ def get_font_info(fontsizes, font_names, rng=np.random):
     return title_fontsize, colorbar_fontsize, xlabel_fontsize, ylabel_fontsize, xlabel_ticks_fontsize, ylabel_ticks_fontsize, csfont
 
 
+def add_titles_and_labels(ax, popular_nouns_x, popular_nouns_y, popular_nouns_title, 
+                          title_params, csfont, title_fontsize, 
+                          xlabel_params, ylabel_params,
+                          xlabel_fontsize, ylabel_fontsize,
+                          inlines, xlabel_ticks_fontsize, ylabel_ticks_fontsize,
+                          rng=np.random):
+    """
+    Set x/y and title labels based on either randomly drawing from a set of words or as fixed inputs.
+    """
+    p = rng.uniform(0,1)
+    if p < title_params['prob'] or type(popular_nouns_title) == str:
+        if type(popular_nouns_title) != str:
+            title_words = get_titles_or_labels(popular_nouns_title, title_params['capitalize'],
+                                        title_params['equation'], inlines,
+                                        nwords=rng.integers(low=title_params['n words']['min'],
+                                                                high=title_params['n words']['max']+1), 
+                                                                rng=rng)
+        else:
+            title_words = popular_nouns_title
+        title = ax.set_title(title_words, fontsize = title_fontsize, **csfont)
+    else:
+        title = ''
+
+    if type(popular_nouns_x) != str:
+        xlabel_words = get_titles_or_labels(popular_nouns_x, xlabel_params['capitalize'],
+                                    xlabel_params['equation'], inlines,
+                                    nwords=rng.integers(low=xlabel_params['n words']['min'],
+                                                            high=xlabel_params['n words']['max']+1),
+                                                            rng=rng)
+    else:
+        xlabel_words = popular_nouns_x
+
+    if type(popular_nouns_y) != str:
+        ylabel_words = get_titles_or_labels(popular_nouns_y, ylabel_params['capitalize'],
+                                ylabel_params['equation'], inlines,
+                                nwords=rng.integers(low=ylabel_params['n words']['min'],
+                                                        high=ylabel_params['n words']['max']+1),
+                                                        rng=rng)
+    else:
+        ylabel_words = popular_nouns_y
+    
+    xlabel = ax.set_xlabel(xlabel_words, fontsize=xlabel_fontsize, **csfont)
+    ylabel = ax.set_ylabel(ylabel_words, fontsize=ylabel_fontsize, **csfont)
+
+    # set ticksizes
+    ax.tick_params(axis='x', which='major', labelsize=xlabel_ticks_fontsize, labelfontfamily=csfont['fontname'])
+    ax.tick_params(axis='y', which='major', labelsize=ylabel_ticks_fontsize, labelfontfamily=csfont['fontname'])
+
+    return title, xlabel, ylabel

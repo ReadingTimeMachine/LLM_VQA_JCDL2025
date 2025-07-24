@@ -8,7 +8,7 @@ import numpy as np
 from PIL import ImageColor
 
 # classes
-from .plot_classes_utils import Histogram
+from .plot_classes_utils import Histogram, Line
 
 # for scatter plot markers
 from matplotlib.lines import Line2D
@@ -42,22 +42,33 @@ colors_ = lambda n: list(map(lambda i: "#" + "%06x" % np.random.randint(0, 0xFFF
 
 
 # LINES PLOT
-def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random):
+def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, **kwargs):
+    """
+    kwargs allows for passing of parameters to be set
+    """
+    line = Line()
+    for k,v in kwargs.items():
+        if k in line.__dict__: # in there
+            setattr(line, k, v)
+
     datas = []
     linestyles_here = []; linethicks_here = []; markers_here = []
     marker_sizes_here = []
     xerrs = []; yerrs = []
-    hasMarker = False
-    p = rng.uniform(0,1)
+    if line.hasMarker is None: 
+        line.hasMarker = False
+        p = rng.uniform(0,1)
+        if p <= plot_params['markers']['prob']:
+            hasMarker = True
     colors_here = []
-    if p <= plot_params['markers']['prob']:
-        hasMarker = True
 
-    elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
+    if line.elinewidth is None:
+        elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
                                             high=plot_params['error bars']['elinewidth']['max'])))
     # draw lines
     #xerrs = []; yerrs = []
     for i in range(len(data['ys'])):
+        if line.marker is None **HERE**
         marker = rng.choice(markers)
         lthick = rng.uniform(low=plot_params['line thick']['min'], 
                                    high=plot_params['line thick']['max'])
@@ -551,7 +562,7 @@ def get_histogram_plot(plot_params, data, ax, linestyles=linestyles, rng=np.rand
 def make_plot(plot_params, data, ax, plot_type='line', linestyles=linestyles,
               iplot=None, nrows=None, ncols=None, rng=np.random, **kwargs):#, plot_style='default'):
     if plot_type == 'line':
-        data_out, ax = get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=rng)
+        data_out, ax = get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=rng, **kwargs)
         return data_out, ax
     elif plot_type == 'scatter':
         data_out, ax = get_scatter_plot(plot_params, data, ax, rng=rng)
@@ -602,3 +613,31 @@ def colorbar_mods(cbar, side, fig):
                             labelbottom=bottom, labeltop=top, 
                             labelleft=left, labelright=right)
     return cbar
+
+
+
+def make_base_plot(plot_style, color_map, dpi, nrows, ncols, 
+                   base=5, verbose=True, tight_layout = True):
+    plt.close('all')
+    plt.style.use(plot_style)
+    plt.set_cmap(color_map) 
+    figsize = (base*ncols*aspect_fig, base*nrows) # w,h
+    if verbose: print('figsize (w,h) =', figsize)
+
+    if tight_layout:
+        fig = plt.figure(figsize=figsize, dpi=dpi,layout='tight')
+    else:
+        fig = plt.figure(figsize=figsize, dpi=dpi)
+
+    axes = []
+    plot_inds = []
+    for i in range(nrows):
+        for j in range(ncols):
+            iplot = (i*nrows) + j
+            ax = fig.add_subplot(nrows, ncols, iplot + 1)
+            axes.append(ax)
+            plot_inds.append([i,j])
+
+    return fig, axes, plot_inds
+
+
