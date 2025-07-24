@@ -526,3 +526,276 @@ def add_titles_and_labels(ax, popular_nouns_x, popular_nouns_y, popular_nouns_ti
     ax.tick_params(axis='y', which='major', labelsize=ylabel_ticks_fontsize, labelfontfamily=csfont['fontname'])
 
     return title, xlabel, ylabel
+
+
+
+##### not sure if this is the right spot for this.... ####
+from .figure_gen_utils.pixel_location_utils import get_data_pixel_locations
+import json
+from .data_utils import NumpyEncoder
+
+
+def collect_plot_data_axes(ax, fig,
+                           height, width,
+                           data_from_plot, data_for_plot, plot_type, title, xlabel, ylabel,
+                           distribution_type, verbose=False):
+    """
+    Collect the data from each plot.  Axes-level (per axis)
+
+    ax : individual axes
+    iplot : plot index
+    """
+
+    if ax.get_figure() is None:
+        if verbose:
+            print('[WARNING]: ax has no figure, using "fig"')
+        ax.set_figure(fig)
+    ###### get data from plot ######
+    # data_from_plot = data_from_plots[iplot]
+    # data_for_plot = data_for_plots[iplot]
+    # plot_type = plot_types[iplot]
+    # title = titles[iplot]
+    # xlabel = xlabels[iplot]
+    # ylabel = ylabels[iplot]
+    ### JPN -- add back in char label
+    # cbar_label = cbar_labels[iplot]
+    # cbar_word = cbar_words[iplot]
+
+    data_pixels = get_data_pixel_locations(data_from_plot, plot_type, ax, width, height)
+
+    # bounding box of square
+    bbox = ax.get_position() # Bbox(x0, y0, x1, y1)
+    xpix1 = np.array([bbox.x0,bbox.x1])
+    ypix1 = np.array([bbox.y0,bbox.y1])
+    xpix1 *= width
+    ypix1 *= height
+        
+    # x-tick locations
+    try:
+        xticks = get_ticks(ax, plot_type, 'x', fig=fig, verbose=verbose) # fig is not used for "regular" plots
+    except Exception as e:
+        if verbose:
+            print('[ERROR]: issue getting x-ticks')
+            print('  ', str(e))
+        success_plot = False
+        import sys; sys.exit()
+        #continue
+
+    # y-tick locations
+    try:
+        yticks = get_ticks(ax, plot_type, 'y', fig=fig, verbose=verbose)
+    except Exception as e:
+        if verbose:
+            print('[ERROR]: issue getting y-ticks')
+            print('  ', str(e))
+            import sys; sys.exit()
+        success_plot = False
+        #continue
+    
+    #### JPN -- come back and add colorbars!
+    # # for colorbars
+    # colorbar_ticks = []
+    # cbar_bbox = None; cbar_text = None
+    # if 'color bar' in data_from_plot:
+    #     colorbar = data_from_plot['color bar']
+    #     if data_from_plot['color bar params']['side'] == 'left' \
+    #         or data_from_plot['color bar params']['side'] == 'right':
+    #         cbarax = 'y'
+    #     else:
+    #         cbarax = 'x'
+    #     try:
+    #         colorbar_ticks = get_ticks(colorbar, plot_type, cbarax, fig=fig, verbose=verbose)
+    #     except Exception as e:
+    #         if verbose:
+    #             print('[ERROR]: issue getting colorbar ticks')
+    #             print('  ', str(e))
+    #             success_plot = False
+
+        
+    # Get the bounding box of the title in display space
+    if title != '':
+        title_bbox = title.get_window_extent()#dpi=dpi)
+        title_words = title.get_text()
+    else:
+        title_bbox = -1
+        title_words = ''
+
+    # xlabel
+    xlabel_bbox = xlabel.get_window_extent()#dpi=dpi)
+    xlabel_words = xlabel.get_text()
+    # ylabel
+    ylabel_bbox = ylabel.get_window_extent()#dpi=dpi)
+    ylabel_words = ylabel.get_text()
+
+    # get offset text
+    yoffset_text_obj = ax.yaxis.get_offset_text()
+    yoffset_text = yoffset_text_obj.get_text()
+    yoffset_text_bbox = None
+    if yoffset_text != '':
+        yoffset_text_bbox = yoffset_text_obj.get_window_extent()
+    # also for x
+    xoffset_text_obj = ax.xaxis.get_offset_text()
+    xoffset_text = xoffset_text_obj.get_text()
+    xoffset_text_bbox = None
+    if xoffset_text != '':
+        xoffset_text_bbox = xoffset_text_obj.get_window_extent()
+
+    ####### SAVE THE DATA ######
+
+    # line plot 
+    #plot_name = 'plot' + str(iplot) 
+    datas = {}
+    # line plot type
+    datas['type'] = plot_type # tag for kind of plot
+    datas['distribution'] = distribution_type
+    datas['data'] = data_for_plot
+    if data_pixels != {}:
+        datas['data pixels'] = data_pixels
+    datas['data from plot'] = json.loads(json.dumps(data_from_plot, cls=NumpyEncoder))
+    if (plot_type == 'scatter' or plot_type == 'contour' or plot_type == 'image of the sky') and 'color bar' in data_from_plot:
+        #print('yes indeed')
+        try:
+            w = data_from_plot['color bar'].get_window_extent()#dpi=dpi)
+        except:
+            w = data_from_plot['color bar'].get_window_extent()
+        datas['color bar'] = {'xmin':w.x0,'ymin':w.y0,
+                                            'xmax':w.x1,'ymax':w.y1, 
+                                            'params':data_from_plot['color bar params']}
+        
+
+        ##### JPN -- come back and add colorbars
+        # # is it an image of the sky? (WCAxes)
+        # if cbar_ax != []: # placeholder for no colorbar
+        #     colorbar_label = None
+        #     colorbar_offset_text = None
+        #     if hasattr(cbar_ax, 'coords'):
+        #         # have text
+        #         for cbar_axc in cbar_ax.coords:
+        #             if cbar_axc._axislabels.get_text() != '':
+        #                 cbar_text = cbar_axc._axislabels.get_text()
+        #                 cbar_bbox = cbar_axc._axislabels.get_window_extent()
+        #                 colorbar_label = {'text':cbar_text, 
+        #                                     'xmin':cbar_bbox.x0, 
+        #                                     'ymin':cbar_bbox.y0,
+        #                                     'xmax':cbar_bbox.x1,
+        #                                     'ymax':cbar_bbox.y1}
+        #                 print('colorbar_label is (WCAxes):', colorbar_label)
+        #                 #print("HAVE TO CHECK FOR OFFSET TEXT")
+        #                 #import sys; sys.exit()
+        #         # try this
+        #         yoff = cbar_ax.yaxis.get_offset_text() #get_text()
+        #         xoff = cbar_ax.yaxis.get_offset_text()
+        #         if xoff.get_text() != '' and yoff.get_text() != '':
+        #             print('both x & y have offset text and I dont know how to deal!')
+        #             import sys; sys.exit()
+        #         elif xoff.get_text() != '':
+        #             cbar_offset_text = xoff
+        #         else:
+        #             cbar_offset_text = yoff # either something or nothing
+        #         if cbar_offset_text.get_text() != '':
+        #             cbar_ot_bb = cbar_offset_text.get_window_extent()
+        #             colorbar_offset_text = {'text':cbar_offset_text.get_text(), 
+        #                                     'xmin':cbar_ot_bb.x0, 
+        #                                     'ymin':cbar_ot_bb.y0,
+        #                                     'xmax':cbar_ot_bb.x1,
+        #                                     'ymax':cbar_ot_bb.y1}
+        #     elif hasattr(cbar_ax, '_colorbar'):
+        #         # check both x & y
+        #         if cbar_ax.yaxis.label.get_text() != '':
+        #             cbar_text = cbar_ax.yaxis.label.get_text()
+        #             cbar_bbox = cbar_ax.yaxis.label.get_window_extent()
+        #             cbar_offset_text = cbar_ax.yaxis.get_offset_text()
+        #         elif cbar_ax.xaxis.label.get_text() != '':
+        #             cbar_text = cbar_ax.xaxis.label.get_text()
+        #             cbar_bbox = cbar_ax.xaxis.label.get_window_extent()
+        #             cbar_offset_text = cbar_ax.xaxis.get_offset_text()
+        #         else:
+        #             print('no label for colorbar!')
+        #             cbar_text = ''
+        #             cbar_offset_text = cbar_ax.xaxis.get_offset_text() # placeholder
+        #         # cbar_text = cbar_ax.get_ylabel()
+        #         # cbar_bbox = cbar_ax.get_window_extent()
+        #         if cbar_text != '':
+        #             colorbar_label = {'text':cbar_text, 
+        #                                     'xmin':cbar_bbox.x0, 
+        #                                     'ymin':cbar_bbox.y0,
+        #                                     'xmax':cbar_bbox.x1,
+        #                                     'ymax':cbar_bbox.y1}
+        #             print('colorbar_label is (matplotlib):', colorbar_label)
+        #         #import sys; sys.exit()
+        #         if cbar_offset_text.get_text() != '':
+        #             cbar_ot_bb = cbar_offset_text.get_window_extent()
+        #             colorbar_offset_text = {'text':cbar_offset_text.get_text(), 
+        #                                     'xmin':cbar_ot_bb.x0, 
+        #                                     'ymin':cbar_ot_bb.y0,
+        #                                     'xmax':cbar_ot_bb.x1,
+        #                                     'ymax':cbar_ot_bb.y1}
+        #     else:
+        #         print('not sure what kind of colorbar this is!')
+        #         import sys; sys.exit()
+
+        #     if colorbar_label is None:
+        #         print('colorbar_label is None for iplot =', iplot, '!')
+        #         #import sys; sys.exit()
+        #     else:
+        #         datas['color bar']['label'] = colorbar_label.copy()
+
+        #     if colorbar_offset_text is None:
+        #         pass
+        #     else:
+        #         datas['color bar']['offset text'] = colorbar_offset_text.copy()
+
+    xtmp = []
+    for xt in xticks:
+        l = {'data':xt[0], 'xmin': xt[1], 
+                'ymin': xt[2], 
+                'xmax':xt[3], 'ymax':xt[4],
+                'tx':xt[5], 'ty':xt[6]}
+        xtmp.append(l)
+    datas['xticks'] = xtmp.copy()
+    # 
+    xtmp = []
+    for xt in yticks:
+        l = {'data':xt[0], 'xmin': xt[1], 
+                'ymin': xt[2], 
+                'xmax':xt[3], 'ymax':xt[4], 
+            'tx':xt[5], 'ty':xt[6]}
+        xtmp.append(l)
+    datas['yticks'] = xtmp.copy()
+    ##### JPN -- come back for colorbars
+    # if len(colorbar_ticks) > 0:
+    #     xtmp = []
+    #     for xt in colorbar_ticks:
+    #         l = {'data':xt[0], 'xmin': xt[1], 
+    #                 'ymin': xt[2], 
+    #                 'xmax':xt[3], 'ymax':xt[4], 
+    #             'tx':xt[5], 'ty':xt[6]}
+    #         xtmp.append(l)
+    #     datas['color bar ticks'] = xtmp.copy()
+        
+    # axis box
+    datas['square'] = {'xmin':xpix1[0], 'ymin':ypix1[0], 
+                                        'xmax':xpix1[1], 'ymax':ypix1[1]}
+    # title
+    if title_bbox != -1:
+        datas['title'] = {'xmin':title_bbox.x0, 'ymin':title_bbox.y0, 
+                                        'xmax':title_bbox.x1, 'ymax':title_bbox.y1,
+                                        'words':title_words}
+    else:
+        pass
+    datas['xlabel'] = {'xmin':xlabel_bbox.x0, 'ymin':xlabel_bbox.y0, 
+                                    'xmax':xlabel_bbox.x1, 'ymax':xlabel_bbox.y1,
+                                    'words':xlabel_words}
+    datas['ylabel'] = {'xmin':ylabel_bbox.x0, 'ymin':ylabel_bbox.y0, 
+                                    'xmax':ylabel_bbox.x1, 'ymax':ylabel_bbox.y1,
+                                    'words':ylabel_words}
+    # offset text
+    for lt,lbb,t in zip([xoffset_text,yoffset_text],
+                        [xoffset_text_bbox,yoffset_text_bbox], ['x','y']):
+        if lt != '': # have something
+            datas[t + '-offset text'] = {'xmin':lbb.x0, 
+                                                    'ymin':lbb.y0, 
+                                    'xmax':lbb.x1, 'ymax':lbb.y1,
+                                    'words':lt}
+            
+    return datas
