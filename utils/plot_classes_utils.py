@@ -26,3 +26,5 @@ class Line():
         self.marker_sizes = None
         self.linecolor = None
         self.linecolors = None
+        # plots
+        self.prob_same_x = None

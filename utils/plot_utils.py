@@ -75,9 +75,13 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
             if type(getattr(line, attr)) != type([]):
                 print('type of ' + attr + ' is not correct, setting default')
                 setattr(line,attr,None)
-            elif len(getattr(line, attr)) != len(data['ys']) :
-                print('wrong length for '+attr+', setting to default')
-                setattr(line, attr, None)
+            elif len(getattr(line, attr)) != len(data['ys']):
+                if len(getattr(line, attr)) > len(data['ys']):
+                    print('wrong length for '+attr+', truncating')
+                    setattr(line,attr, getattr(line, attr)[:len(data['ys'])])
+                else:
+                    print('wrong length for '+attr+', setting to default')
+                    setattr(line, attr, None)
 
 
     for i in range(len(data['ys'])):

@@ -18,8 +18,16 @@ def q_nlines_plot_plotnums(data, qa_pairs, plot_num = [0,0],
                                return_qa=True, verbose=True, use_words=True, 
                                single_figure_flag=True, 
                                text_persona = None):
+    """
+    Construct Q/A for how many lines are in the plot.
+    """
     big_tag = 'nlines'
     object = 'lines'
+    # get answer
+    ans = len(data['plot'+str(plot_num)]['data']['ys'])
+
+    #--- typically don't need to change below ----
+
     nplots = get_nplots(data)
 
     ### persona of assistant
@@ -39,22 +47,25 @@ def q_nlines_plot_plotnums(data, qa_pairs, plot_num = [0,0],
                                                        val_type = 'an integer', 
                                                        nplots = nplots, 
                                                        use_words=use_words)
-    # get answer
-    a = {big_tag + ' ' + adder: len(data['plot'+str(plot_num)]['data from plot']['data'][0])}
+    # check adder
+    # if adder != '':
+    #     adder = adder
     # construct question:
     q = text_persona + " " + text_context + " " + text_question + " " + text_format
+    # get answer, formatted
+    a = {big_tag + adder: ans}
     if verbose:
         print('QUESTION:', q)
         print('ANSWER:', a)
     if return_qa: 
-        if big_tag + ' ' + adder not in qa_pairs['Level 1']['Plot-level questions']:
-            qa_pairs['Level 1']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+        if big_tag + adder not in qa_pairs['Level 1']['Plot-level questions']:
+            qa_pairs['Level 1']['Plot-level questions'][big_tag +  adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
                                                                                                         'persona':text_persona, 
                                                                                                         'context':text_context,
                                                                                                         'question':text_question, 
                                                                                                         'format':text_format}}
         else:
-            qa_pairs['Level 1']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+            qa_pairs['Level 1']['Plot-level questions'][big_tag + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
                                                                                                         'persona':text_persona, 
                                                                                                         'context':text_context,
                                                                                                         'question':text_question, 
@@ -62,63 +73,84 @@ def q_nlines_plot_plotnums(data, qa_pairs, plot_num = [0,0],
         return qa_pairs
     
 
-# def q_stats_hists(data, qa_pairs, stat = {'minimum':np.min}, plot_num = 0, 
-#                      return_qa=True, use_words=True, verbose=True, 
-#                      single_figure_flag=True, 
-#                                text_persona = None):
-#     """
-#     stat: {'name':stat} which gives name of stat and function to calculate it, like {'minimum':np.min}
-#     use_words : set to True to translate row, column to words; False will use C-ordering indexing
-#     stat : dictionary of the name and function to use for each stat
-#     """
-#     big_tag = list(stat.keys())[0]
-#     # get nplots    
-#     nplots = get_nplots(data)
+def q_stats_lines(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
+                  plot_num = 0, 
+                     return_qa=True, use_words=True, verbose=True, 
+                     single_figure_flag=True, 
+                               text_persona = None):
+    """
+    stat: {'name':stat} which gives name of stat and function to calculate it, like {'minimum':np.min}
+    use_words : set to True to translate row, column to words; False will use C-ordering indexing
+    stat : dictionary of the name and function to use for each stat
+    """
+    # output type
+    val_type = 'a list of floats'
 
-#     ### persona of assistant
-#     text_persona = persona(text=text_persona)
-#     ## context for question
-#     if nplots == 1 and single_figure_flag:
-#         text_context = context(0, 0, use_words=use_words,
-#                                 single_figure_flag=single_figure_flag)
-#     else:
-#         nrow = data['figure']['plot indexes'][plot_num][0]
-#         ncol = data['figure']['plot indexes'][plot_num][1]
-#         pindex = data['figure']['plot indexes'][plot_num]
-#         text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
+    # check
+    if axis.lower() == 'x': 
+        axis = 'x'
+    elif axis.lower() == 'y':
+        axis = 'y'
+    else:
+        print('Axis not chosen correctly:', axis)
+        import sys; sys.exit()
 
-#     text_question, adder, text_format  = how_much_data_values(big_tag, nplots=1, 
-#                                                               axis='x', 
-#                                                               val_type='a float', 
-#                                                               use_words=use_words)
-    
-#     #### Answer
-#     f = list(stat.values())[0] # what stastical function
-#     xs = data['plot'+str(plot_num)]['data']['xs']
-#     la = {big_tag + " x":f(xs)}#, big_tag + " y":f(ys)}
-    
-#     ans = {big_tag + ' ' + adder:{'plot'+str(plot_num):la}} 
-#     a = {big_tag + ' ' + adder:la}
-#     # construct question:
-#     q = text_persona + " " + text_context + " " + text_question + " " + text_format
+    #### Answer
+    f = list(stat.values())[0] # what statical function
+    zs = data['plot'+str(plot_num)]['data'][axis+'s']
+    list_stat = []
+    for z in zs:
+        list_stat.append(f(z))
 
-#     if verbose:
-#         print('QUESTION:', q)
-#         print('ANSWER:', ans)
-#     if return_qa: 
-#         if big_tag + ' ' + adder not in qa_pairs['Level 2']['Plot-level questions']:
-#             qa_pairs['Level 2']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
-#                                                                                                         'persona':text_persona, 
-#                                                                                                         'context':text_context,
-#                                                                                                         'question':text_question, 
-#                                                                                                         'format':text_format}}
-#         else:
-#             qa_pairs['Level 2']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
-#                                                                                                         'persona':text_persona, 
-#                                                                                                         'context':text_context,
-#                                                                                                         'question':text_question, 
-#                                                                                                         'format':text_format}
-#         return qa_pairs
+    #---- Don't have to change much below ----
+    big_tag = list(stat.keys())[0]
+    # get nplots    
+    nplots = get_nplots(data)
+
+    ### persona of assistant
+    text_persona = persona(text=text_persona)
+    ## context for question
+    if nplots == 1 and single_figure_flag:
+        text_context = context(0, 0, use_words=use_words,
+                                single_figure_flag=single_figure_flag)
+    else:
+        nrow = data['figure']['plot indexes'][plot_num][0]
+        ncol = data['figure']['plot indexes'][plot_num][1]
+        pindex = data['figure']['plot indexes'][plot_num]
+        text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
+
+    text_question, adder, text_format  = how_much_data_values(big_tag, nplots=1, 
+                                                              axis=axis, 
+                                                              val_type=val_type, 
+                                                              use_words=use_words, 
+                                                              along_an_axis=True)
+    # big tag update
+    big_tag += ' ' + axis
+    # format answer
+    #la = {big_tag + " "+axis:list_stat}
+    la = {big_tag:list_stat}
+    ans = {big_tag +  adder:{'plot'+str(plot_num):la}} 
+    a = {big_tag +  adder:la}
+    # construct question:
+    q = text_persona + " " + text_context + " " + text_question + " " + text_format
+
+    if verbose:
+        print('QUESTION:', q)
+        print('ANSWER:', ans)
+    if return_qa: 
+        if big_tag + adder not in qa_pairs['Level 2']['Plot-level questions']:
+            qa_pairs['Level 2']['Plot-level questions'][big_tag + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}}
+        else:
+            qa_pairs['Level 2']['Plot-level questions'][big_tag + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}
+        return qa_pairs
     
 
 # def q_gmm_ngaussians_hists(data, qa_pairs, plot_num = 0, 
@@ -162,7 +194,7 @@ def q_nlines_plot_plotnums(data, qa_pairs, plot_num = [0,0],
 #     ### answer
 #     la = data['plot'+str(plot_num)]['data']['data params']['nclusters']
 
-#     a = {big_tag + ' ' + adder:la}
+#     a = {big_tag + adder:la}
 #     # construct question:
 #     q = text_persona + " " + text_context + " " + text_question + " " + text_format
 
@@ -170,14 +202,14 @@ def q_nlines_plot_plotnums(data, qa_pairs, plot_num = [0,0],
 #         print('QUESTION:', q)
 #         print('ANSWER:', {'plot'+str(plot_num):a})
 #     if return_qa: 
-#         if big_tag + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
-#             qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+#         if big_tag + adder not in qa_pairs['Level 3']['Plot-level questions']:
+#             qa_pairs['Level 3']['Plot-level questions'][big_tag + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
 #                                                                                                         'persona':text_persona, 
 #                                                                                                         'context':text_context,
 #                                                                                                         'question':text_question, 
 #                                                                                                         'format':text_format}}
 #         else:
-#             qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+#             qa_pairs['Level 3']['Plot-level questions'][big_tag + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
 #                                                                                                         'persona':text_persona, 
 #                                                                                                         'context':text_context,
 #                                                                                                         'question':text_question, 

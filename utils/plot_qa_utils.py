@@ -296,6 +296,16 @@ def context(nrow, ncol, plot_index = [0,0],
 
 ##### FEEDER FUNCTIONS ######
 
+def get_adder(nplots, use_words):
+    if use_words and nplots > 1:
+        adder = ' (words)'
+    elif not use_words and nplots > 1:
+        adder = ' (plot numbers)'
+    elif nplots == 1:
+        adder = ''
+    return adder
+
+
 def how_many(object, big_tag, val_type = 'an integer', nplots = 1, 
              use_words=True, to_generate=False):
     """
@@ -305,26 +315,26 @@ def how_many(object, big_tag, val_type = 'an integer', nplots = 1,
         q = 'How many '+object+' are there in the specified figure panel?'
     else:
         q = 'How many ' + object + ' were used to generate the data for the plot in the figure panel?'
-    if use_words and nplots > 1:
-        adder = '(words)'
-    elif not use_words and nplots > 1:
-        adder = '(plot numbers)'
-    elif nplots == 1:
-        adder = ''
+    adder = get_adder(nplots, use_words)
     # formatting for output
     format = 'Please format the output as a json as {"'+big_tag+'":""} for this figure panel, where the "'+big_tag+'" value should be '+val_type+'.'
     return q, adder, format
 
-def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float', use_words=True):
-    q = 'What are the '+big_tag+' data values in this figure panel? '
-    if use_words and nplots > 1:
-        adder = '(words)'
-    elif not use_words and nplots > 1:
-        adder = '(plot numbers)'
-    elif nplots == 1:
-        adder = ''
+
+def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float', 
+                         use_words=True, along_an_axis=False):
+    axis_words = ''
+    if along_an_axis:
+        axis_words = 'along the ' + axis + '-axis '
+    q = 'What are the '+big_tag+ axis_words+' data values in this figure panel? '
+    adder = get_adder(nplots, use_words)
+    # list or not?
+    if 'list' in val_type:
+        outputf = '"[]"'
+    else:
+        outputf = '""'
     # formatting for output
-    format = 'Please format the output as a json as {"'+big_tag+' '+axis + '":""} for this figure panel, where the "'+big_tag+'" value should be '+val_type+', calculated from the '
+    format = 'Please format the output as a json as {"'+big_tag+' '+axis + '":'+outputf+'} for this figure panel, where the "'+big_tag+' '+axis +'" value should be '+val_type+', calculated from the '
     format += 'data values used to create the plot.'
     return q, adder, format
 

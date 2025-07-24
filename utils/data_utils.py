@@ -90,15 +90,27 @@ def get_contour_data(plot_params, distribution = 'random',
 ######################## LINES DATA ########################
 ############################################################
 
+from .plot_classes_utils import Line
+
 def get_line_data(plot_params, npoints,nlines,xmin=0, xmax=1, ymin=0, ymax=1, 
-                  prob_same_x=0.1,
+                  #prob_same_x=0.1,
                   xordered=True, verbose=True,
                  pick_xrange=True, pick_yrange=True,
-                 distribution='random', rng=np.random):
+                 distribution='random', rng=np.random, **kwargs):
     """
     ymin/ymax : can be a number of a list, if list, needs to be matched up with number of nlines
     xordered : do we want to put the x-points in a monotonic order?
     """
+    line = Line()
+    for k,v in kwargs.items():
+        if k in line.__dict__: # in there
+            setattr(line, k, v)
+
+    if line.prob_same_x is None:
+        prob_same_x = plot_params['prob same x']
+    else:
+        prob_same_x = line.prob_same_x
+
     data_params = {}
     if (type(ymin) not in [list, np.ndarray]) and (type(ymax) not in [list, np.ndarray]):
         pass
@@ -341,7 +353,8 @@ def get_histogram_data(plot_params, distribution = 'random',
 def get_data(plot_params, plot_type='line', distribution='random', #npoints = 100, xmin=0, xmax=1, ymin=0, ymax=1, 
              #xordered=True, nlines=1, # line params
              verbose=True, xordered=True, # general params
-             rng=None # random number generation
+             rng=None, # random number generation
+             **kwargs
             ):
     if rng is None:
         rng = np.random
@@ -353,11 +366,11 @@ def get_data(plot_params, plot_type='line', distribution='random', #npoints = 10
                               xmax=plot_params['xmax'], 
                               ymin=plot_params['ymin'], 
                               ymax=plot_params['ymax'], 
-                              prob_same_x=plot_params['prob same x'],
+                              #prob_same_x=plot_params['prob same x'],
                               xordered=xordered, 
                               verbose=verbose, 
                                             distribution=distribution,
-                                            rng=rng)
+                                            rng=rng, **kwargs)
         data = {'xs':xs, 'ys':ys}
         if len(xerrs) > 0:
             data['xerrs'] = xerrs
