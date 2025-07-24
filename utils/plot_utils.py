@@ -72,7 +72,10 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
     # a few tests
     for attr in ['markers', 'lthicks', 'linestyles', 'marker_sizes', 'linecolors']:
         if getattr(line, attr) is not None:
-            if len(getattr(line, attr)) != len(data['ys']) or type(getattr(line, attr)) != type([]):
+            if type(getattr(line, attr)) != type([]):
+                print('type of ' + attr + ' is not correct, setting default')
+                setattr(line,attr,None)
+            elif len(getattr(line, attr)) != len(data['ys']) :
                 print('wrong length for '+attr+', setting to default')
                 setattr(line, attr, None)
 
@@ -103,9 +106,11 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
 
         if line.linecolor is None and line.linecolors is None:
             try:
-                linecolor = ImageColor.getcolor(data_here.get_color(), "RGBA")
+                #linecolor = ImageColor.getcolor(data_here.get_color(), "RGBA")
+                linecolor = np.array(ImageColor.getcolor(colors_(1)[0], 'RGBA'))
                 #cols.append(linecolor)
-            except:
+            except Exception as e:
+                print('Issue getting line color:', str(e))
                 #cols.append( (0,0,0) ) # I assume
                 linecolor = (0,0,0)
             linecolor = np.array(linecolor)/255.
