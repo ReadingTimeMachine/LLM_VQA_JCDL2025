@@ -17,14 +17,12 @@ class Line():
         self.hasMarker = None
         self.elinewidth = None
         self.marker = None
-
-        self.rwidth = None
-        self.orientation = None
-        self.axis = None
+        self.markers = None
         self.lthick = None
+        self.lthicks = None
         self.linestyle = None
+        self.linestyles = None
+        self.marker_size = None
+        self.marker_sizes = None
         self.linecolor = None
-        self.barcolor = None
-        self.nbins = None
-        self.es = None
-        self.hasErr = None
+        self.linecolors = None

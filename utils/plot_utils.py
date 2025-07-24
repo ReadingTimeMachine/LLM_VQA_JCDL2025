@@ -56,10 +56,12 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
     marker_sizes_here = []
     xerrs = []; yerrs = []
     if line.hasMarker is None: 
-        line.hasMarker = False
+        hasMarker = False
         p = rng.uniform(0,1)
         if p <= plot_params['markers']['prob']:
             hasMarker = True
+    else:
+        hasMarker = line.hasMarker
     colors_here = []
 
     if line.elinewidth is None:
@@ -67,44 +69,86 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
                                             high=plot_params['error bars']['elinewidth']['max'])))
     # draw lines
     #xerrs = []; yerrs = []
+    # a few tests
+    for attr in ['markers', 'lthicks', 'linestyles', 'marker_sizes', 'linecolors']:
+        if getattr(line, attr) is not None:
+            if len(getattr(line, attr)) != len(data['ys']) or type(getattr(line, attr)) != type([]):
+                print('wrong length for '+attr+', setting to default')
+                setattr(line, attr, None)
+
+
     for i in range(len(data['ys'])):
-        if line.marker is None **HERE**
-        marker = rng.choice(markers)
-        lthick = rng.uniform(low=plot_params['line thick']['min'], 
+        if line.marker is None and line.markers is None:
+            marker = rng.choice(markers)
+        elif line.marker is not None:
+            marker = line.marker
+        elif line.markers is not None:
+            marker = line.markers[i]
+
+        if line.lthick is None and line.lthicks is None:
+            lthick = rng.uniform(low=plot_params['line thick']['min'], 
                                    high=plot_params['line thick']['max'])
+        elif line.lthick is not None:
+            lthick = line.lthick
+        elif line.lthicks is not None:
+            lthick = line.lthicks[i]
 
         # choose random linestyle
-        linestyle = rng.choice(linestyles)
+        if line.linestyle is None and line.linestyles is None:
+            linestyle = rng.choice(linestyles)
+        elif line.linestyle is not None:
+            linestyle = line.linestyle
+        elif line.linestyles is not None:
+            linestyle = line.linestyles[i]
+
+        if line.linecolor is None and line.linecolors is None:
+            try:
+                linecolor = ImageColor.getcolor(data_here.get_color(), "RGBA")
+                #cols.append(linecolor)
+            except:
+                #cols.append( (0,0,0) ) # I assume
+                linecolor = (0,0,0)
+            linecolor = np.array(linecolor)/255.
+        elif line.linecolor is not None:
+            linecolor = line.linecolor
+        elif line.linecolors is not None:
+            linecolor = line.linecolors[i]
+
         if hasMarker:
-            marker_size = int(round(rng.uniform(low=plot_params['markers']['size']['min'],
+            if line.marker_size is None and line.marker_sizes is None:
+                marker_size = int(round(rng.uniform(low=plot_params['markers']['size']['min'],
                                             high=plot_params['markers']['size']['min'])))
+            elif line.marker_size is not None:
+                marker_size = line.marker_size
+            elif line.marker_sizes is not None:
+                marker_size = line.marker_sizes[i]
             data_here, = ax.plot(data['xs'][i],data['ys'][i], linewidth=lthick, 
                                  linestyle = linestyle, marker=marker,
-                                markersize=marker_size)
+                                markersize=marker_size, color=linecolor)
         else:
             data_here, = ax.plot(data['xs'][i],data['ys'][i], linewidth=lthick, 
-                                 linestyle = linestyle)
+                                 linestyle = linestyle, color=linecolor)
             marker = ''
             marker_size = -1
 
-        cols = []
+        #cols = []
         plt.draw()
         #print('DRAW WAS CALLED')
-        try:
-            cols.append(ImageColor.getcolor(data_here.get_color(), "RGBA"))
-        except:
-            cols.append( (0,0,0) ) # I assume
-        cols = np.array(cols)/255.
+        # try:
+        #     cols.append(ImageColor.getcolor(data_here.get_color(), "RGBA"))
+        # except:
+        #     cols.append( (0,0,0) ) # I assume
+        # cols = np.array(cols)/255.
 
         if 'xerrs' in data:# and 'yerrs' not in data: # have x-errors
             (_, caps, bars) = ax.errorbar(data['xs'][i],data['ys'][i],xerr=data['xerrs'][i],
                                          linewidth=0,elinewidth=elinewidth,
-                                         markersize=0, ecolor=cols, zorder=0)
+                                         markersize=0, ecolor=linecolor, zorder=0)
             xerrs.append(bars)
         if 'yerrs' in data:# and 'xerrs' not in data: # have x-errors
             (_, caps, bars) = ax.errorbar(data['xs'][i],data['ys'][i],yerr=data['yerrs'][i],
                                          linewidth=0, elinewidth=elinewidth,
-                                         markersize=0, ecolor=cols, zorder=0)
+                                         markersize=0, ecolor=linecolor, zorder=0)
             yerrs.append(bars)
         
         linethicks_here.append(lthick)
@@ -112,7 +156,7 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
         markers_here.append(marker)
         datas.append(data_here)
         marker_sizes_here.append(marker_size)
-        colors_here.append(cols)
+        colors_here.append(linecolor)
 
     data_out = {'data':datas, 'plot params':{'linethick':linethicks_here, 
                                             'linestyles':linestyles_here,
@@ -616,7 +660,7 @@ def colorbar_mods(cbar, side, fig):
 
 
 
-def make_base_plot(plot_style, color_map, dpi, nrows, ncols, 
+def make_base_plot(plot_style, color_map, dpi, nrows, ncols, aspect_fig,
                    base=5, verbose=True, tight_layout = True):
     plt.close('all')
     plt.style.use(plot_style)
