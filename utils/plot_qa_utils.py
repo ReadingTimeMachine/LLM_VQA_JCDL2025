@@ -325,8 +325,8 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
                          use_words=True, along_an_axis=False):
     axis_words = ''
     if along_an_axis:
-        axis_words = 'along the ' + axis + '-axis '
-    q = 'What are the '+big_tag+ axis_words+' data values in this figure panel? '
+        axis_words = 'along the ' + axis + '-axis'
+    q = 'What are the '+big_tag+' data values '+axis_words+' in this figure panel? '
     adder = get_adder(nplots, use_words)
     # list or not?
     if 'list' in val_type:

@@ -77,6 +77,7 @@ def load_image(image_path, tmp_dir = '/Users/jnaiman/Downloads/tmp/', fac=1.0,
     # check options for image format
     if img_format not in ['png', 'jpeg', 'gif']:
         img_format = 'png'
+    #print('1:', image_path)
     img = Image.open(image_path).convert('RGB')
     new_size = np.round(np.array(img.size)*fac).astype('int')
     img = img.resize(new_size, Image.Resampling.LANCZOS)
@@ -99,13 +100,13 @@ def get_img_json_pair(img_path, json_path, dir_api,
                       img_format = 'png',
                       return_image_format = True,
                       restart = False, verbose = True, 
-                      load_image = True):
+                      load_image_tmp = True):
     """
     img_path : where image file is stored
     json_path : where json path is stored
     dir_api : where we can look for prior, saved pickles, if applicable
     fac : do we want to downsize the image? IF so, set to < 1
-    load_image : if set to False, doesn't load image but tries to figure out format from suffix
+    load_image_tmp : if set to False, doesn't load image but tries to figure out format from suffix
 
     returns: encoded image, full json from creation run, error
       encoded image and full json are empty strings if error is True
@@ -121,20 +122,34 @@ def get_img_json_pair(img_path, json_path, dir_api,
             return '', '', '', True
     # do we have it?
     try:
+    #if True:
         #image_path = '/Users/jnaiman/Downloads/data_full_v2/Picture'+str(int(iFile))+'.png'
-        if load_image:
+        if load_image_tmp:
             encoded_image, img_format = load_image(img_path, fac=fac, tmp_dir=tmp_dir, 
                                                img_format=img_format, 
                                                return_image_format=return_image_format)
         else:
             encoded_image = ''
             img_format = img_path.split('.')[-1]
+    except Exception as e:
+    #else:
+        if verbose: 
+            print('[ERROR]:', str(e))
+            print('  could not load image')
+        err = True
+        if not return_image_format:
+            return '','', True
+        else:
+            return '', '', '', True
+    try:
         # get questions
         with open(json_path,'r') as f:
             j = json.loads(f.read())
             j = json.loads(j)
     except Exception as e:
-        if verbose: print('[ERROR]:', str(e))
+        if verbose: 
+            print('[ERROR]:', str(e))
+            print('json path:', json_path)
         err = True
         if not return_image_format:
             return '','', True
