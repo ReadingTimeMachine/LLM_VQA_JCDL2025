@@ -356,6 +356,7 @@ def get_gmm(xmin,xmax,ymin=0,ymax=1,zmin=0,zmax=1,
         cluster_std1 *= (xmax-xmin)
 
     #print(cluster_std1)
+    #print('nsamples:', nsamples1)
         
     data_params = {'nsamples':nsamples1, 'nclusters':nclusters1}#,
                   #'cluster_std':cluster_std1}
@@ -446,7 +447,11 @@ def get_gmm(xmin,xmax,ymin=0,ymax=1,zmin=0,zmax=1,
         if nsamples1 > max_sample_size:
             nsamples1 = max_sample_size
         # y_true_out 
+        #print('nsamples_min', nsamples_min)
+        #print('nsamples1', nsamples1)
+        #print('max sample size', max_sample_size)
         while (len(y_true_out) < nsamples_min) or ((isamples_mul<=iloop_max) and (nsamples1 <= max_sample_size)): # loop until we get something
+            #print("HERE")
             if isamples_mul > 1: # we are on a new loop
                 if verbose: print('    on loop:', isamples_mul, nsamples1, len(y_true_out))
             isamples_mul += 1
@@ -506,6 +511,7 @@ def get_gmm(xmin,xmax,ymin=0,ymax=1,zmin=0,zmax=1,
             # print('y_true, 1:', y_true)
             # print('y_true_out:', y_true_out)
 
+        #print('len ytrue', len(y_true_out))
         #print('HERE gmm_data 4')
         if not maxReached: # we have maxed out! drop condition
             if verbose: print('    maxed out!')
@@ -629,6 +635,7 @@ def get_gmm_data(plot_type, dist_params,
 
     #seed = 42
     #rng.seed(seed)
+    #print('npoints here in get_gmm_data', npoints)
         
     if plot_type == 'line':
         p = rng.uniform(0,1)
@@ -701,6 +708,7 @@ def get_gmm_data(plot_type, dist_params,
         npoints = rng.uniform(dist_params['upsample factor log']['min'], 
                                     dist_params['upsample factor log']['max'])
         npoints = int(np.max(npoints+1)*round(np.power(10,npoints)))
+        #print('now npoints=',npoints)
 
         data_params_out = {'points':"","colors":''}
         X, colors_dist, data_params = get_gmm(xmin,xmax,ymin=ymin,ymax=ymax,
@@ -714,7 +722,9 @@ def get_gmm_data(plot_type, dist_params,
                                                  cmax=cmax,
                                              down_sample_max=dist_params['max points'],
                                          small_data_params = small_data_params,
-                                         verbose=verbose, rng=rng)  
+                                         verbose=verbose, rng=rng, 
+                                         iloop_max = -1 # this one is so that it doesn't loop a ton
+                                         )  
         xs = X[:,0]
         ys = X[:,1]
         # colors linear?

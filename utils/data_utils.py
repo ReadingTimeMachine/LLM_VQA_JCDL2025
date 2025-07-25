@@ -208,6 +208,7 @@ def get_scatter_data(plot_params, distribution = 'random',
     data_params = {}
     npoints = int(round(rng.uniform(low=plot_params['npoints']['min'], 
                                           high=plot_params['npoints']['max'])))
+    #print('npoints here:', npoints)
     
     xmin,xmax = plot_params['xmin'],plot_params['xmax']
     ymin,ymax = plot_params['ymin'],plot_params['ymax']
