@@ -41,11 +41,27 @@ class Scatter():
         self.colorbar_pad = None
         self.elinewidth = None
 
+class Contour():
+    def __init__(self):
+        self.nx = None
+        self.ny = None
+        self.plot_type = None
+        self.nlevels = None
+        self.grayContours = None
+        self.colorbar_side = None
+        self.colorbar_size = None
+        self.colorbar_pad = None
+        
         # self.hasMarker = None
+        # self.elinewidth = None
+        # self.marker = None
+        # self.markers = None
         # self.lthick = None
         # self.lthicks = None
         # self.linestyle = None
         # self.linestyles = None
+        # self.marker_size = None
+        # self.marker_sizes = None
         # self.linecolor = None
         # self.linecolors = None
         # # plots

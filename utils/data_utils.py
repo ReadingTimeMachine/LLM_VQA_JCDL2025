@@ -24,17 +24,30 @@ class NumpyEncoder(json.JSONEncoder):
 ##########################################
 ############## CONTOUR DATA ###############
 ##########################################
+from .plot_classes_utils import Contour
 
 def get_contour_data(plot_params, distribution = 'random',
-                     verbose=True, rng=np.random):
+                     verbose=True, rng=np.random, **kwargs):
     """
     plot_params : directory with plot params
     """
+    contour = Contour()
+    for k,v in kwargs.items():
+        if k in contour.__dict__: # in there
+            setattr(contour, k, v)
+
     data_params = {}
-    nx = int(round(rng.uniform(low=plot_params['npoints']['nx']['min'], 
+    #print('contour', contour.__dict__)
+    if contour.nx is None:
+        nx = int(round(rng.uniform(low=plot_params['npoints']['nx']['min'], 
                                           high=plot_params['npoints']['nx']['max'])))
-    ny = int(round(rng.uniform(low=plot_params['npoints']['ny']['min'], 
+    else:
+        nx = contour.nx
+    if contour.ny is None:
+        ny = int(round(rng.uniform(low=plot_params['npoints']['ny']['min'], 
                                           high=plot_params['npoints']['ny']['max'])))
+    else:
+        ny = contour.ny
     
     xmin,xmax = plot_params['xmin'],plot_params['xmax']
     ymin,ymax = plot_params['ymin'],plot_params['ymax']
@@ -415,7 +428,8 @@ def get_data(plot_params, plot_type='line', distribution='random', #npoints = 10
         xs, ys, color_grid,xerr,yerr, data_params = get_contour_data(plot_params,
                                                        distribution=distribution, 
                                                        rng=rng,
-                                                           verbose=verbose)
+                                                           verbose=verbose, 
+                                                           **kwargs)
         data = {'xs':xs, 'ys': ys, 'colors':color_grid}
         if len(xerr) > 0:
             data['xerrs'] = xerr

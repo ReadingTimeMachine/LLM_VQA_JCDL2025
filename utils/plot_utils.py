@@ -8,7 +8,7 @@ import numpy as np
 from PIL import ImageColor
 
 # classes
-from .plot_classes_utils import Histogram, Line, Scatter
+from .plot_classes_utils import Histogram, Line, Scatter, Contour
 
 # for scatter plot markers
 from matplotlib.lines import Line2D
@@ -363,19 +363,30 @@ def get_scatter_plot(plot_params, data, ax, rng=np.random, **kwargs):
 
 
 
-def get_contour_plot(plot_params, data, ax, rng=np.random):
-    p = rng.uniform(0,1) # probability that has a colorbar
-    #pi = rng.uniform(0,1) # probability that is an image (vs a contour with lines)
-    choices = []; probs = []
-    for k,v in plot_params['image or contour']['prob'].items():
-        choices.append(k)
-        probs.append(v)
-    plot_type = rng.choice(choices, p=probs)
+def get_contour_plot(plot_params, data, ax, rng=np.random, **kwargs):
+    contour = Contour()
+    for k,v in kwargs.items():
+        if k in contour.__dict__: # in there
+            setattr(contour, k, v)
+
+    if contour.plot_type is None:
+        p = rng.uniform(0,1) # probability that has a colorbar
+        #pi = rng.uniform(0,1) # probability that is an image (vs a contour with lines)
+        choices = []; probs = []
+        for k,v in plot_params['image or contour']['prob'].items():
+            choices.append(k)
+            probs.append(v)
+        plot_type = rng.choice(choices, p=probs)
+    else:
+        plot_type = contour.plot_type
     cax = []; side = ''
     
     if plot_type == 'contour':
-        nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
+        if contour.nlevels is None:
+            nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
                                               high=plot_params['nlines']['max'])))
+        else:
+            nlevels = contour.nlevels
         data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
         data_here = {'contour':data_here2}
     elif plot_type == 'image':
@@ -388,10 +399,13 @@ def get_contour_plot(plot_params, data, ax, rng=np.random):
         data_here1 = ax.imshow(data['colors'], extent=extent)
         data_here = {'image':data_here1}
     elif plot_type == 'both':
-        pg = rng.uniform(0,1)
-        grayContours = False
-        if pg <= plot_params['image or contour']['both contours']['prob gray']: # probability that contours are gray for "both" situation
-            grayContours = True
+        if contour.grayContours is None:
+            pg = rng.uniform(0,1)
+            grayContours = False
+            if pg <= plot_params['image or contour']['both contours']['prob gray']: # probability that contours are gray for "both" situation
+                grayContours = True
+        else:
+            grayContours = contour.grayContours
         cmap = rng.choice(['gray', 'gray_r'])
         real_x = data['xs']
         real_y = data['ys']
@@ -399,8 +413,11 @@ def get_contour_plot(plot_params, data, ax, rng=np.random):
         dy = (real_y[1]-real_y[0])/2.
         extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
         data_here1 = ax.imshow(data['colors'], extent=extent)
-        nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
+        if contour.nlevels is None:
+            nlevels = int(round(rng.uniform(low=plot_params['nlines']['min'],
                                               high=plot_params['nlines']['max'])))
+        else:
+            nlevels = contour.nlevels
         if not grayContours:
             data_here2 = ax.contour(data['xs'], data['ys'], data['colors'], nlevels)
         else:
@@ -418,16 +435,25 @@ def get_contour_plot(plot_params, data, ax, rng=np.random):
         divider = make_axes_locatable(ax)
 
         # get probs
-        probs = []; choices = []
-        for k,v in plot_params['color bar']['location probs'].items():
-            probs.append(v); choices.append(k)
-        side = rng.choice(choices, p=probs)
-        size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
+        if contour.colorbar_side is None:
+            probs = []; choices = []
+            for k,v in plot_params['color bar']['location probs'].items():
+                probs.append(v); choices.append(k)
+            side = rng.choice(choices, p=probs)
+        else:
+            side = contour.colorbar_side
+        if contour.colorbar_size is None:
+            size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
                      high=plot_params['color bar']['size percent']['max'])
-        size = str(int(round(size*100)))+'%'
+        else:
+            size = contour.colorbar_size
 
-        pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
+        size = str(int(round(size*100)))+'%'
+        if contour.colorbar_pad is None:
+            pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
                                  high=plot_params['color bar']['pad']['max'])
+        else:
+            pad = contour.colorbar_pad
 
         cax = divider.append_axes(side, size=size, pad=pad)
         # the side of the axis
@@ -673,7 +699,7 @@ def make_plot(plot_params, data, ax, plot_type='line', linestyles=linestyles,
         data_out, ax = get_histogram_plot(plot_params, data, ax, linestyles=linestyles, rng=rng, **kwargs)
         return data_out, ax
     elif plot_type == 'contour':
-        data_out, ax = get_contour_plot(plot_params, data, ax, rng=rng)
+        data_out, ax = get_contour_plot(plot_params, data, ax, rng=rng, **kwargs)
         return data_out, ax
     else:
         print('not implement yet!')
