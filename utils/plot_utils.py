@@ -743,3 +743,148 @@ def make_base_plot(plot_style, color_map, dpi, nrows, ncols, aspect_fig,
     return fig, axes, plot_inds
 
 
+
+from .synthetic_fig_utils import get_titles_or_labels
+
+def make_colorbar(data_from_plot, plot_type, fig, 
+                  popular_nouns, inlines, colorbar_params,
+                  title_params, colorbar_fontsize, csfont,
+                  rng=np.random, hasLabel=None):
+    cbar = None
+    colorbar_words = None
+    #cbar_labels = []; cbar_words = []; cbar_nums = []
+    if plot_type == 'scatter': 
+        if 'color bar' in data_from_plot:
+            side = data_from_plot['color bar params']['side']
+            if side == 'top' or side == 'bottom':
+                orientation = 'horizontal'
+            else:
+                orientation = 'vertical'
+                              
+            cbar = fig.colorbar(data_from_plot['data'], 
+                        cax=data_from_plot['color bar'], 
+                        orientation=orientation)
+            # label?
+            if type(popular_nouns) != str:
+                colorbar_words = get_titles_or_labels(popular_nouns, 
+                                                    colorbar_params['capitalize'],
+                                        colorbar_params['equation'], inlines,
+                                        nwords=rng.integers(low=title_params['n words']['min'],
+                                                                high=title_params['n words']['max']+1), 
+                                                                rng=rng)
+            else:
+                colorbar_words = popular_nouns
+                hasLabel = True
+
+            if hasLabel is None and (hasLabel is not False):
+                if rng.uniform() <= data_from_plot['color bar params']['label prob']: # has label
+                    cbar.set_label(colorbar_words, fontsize=colorbar_fontsize, **csfont)
+            elif hasLabel:
+                cbar.set_label(colorbar_words, fontsize=colorbar_fontsize, **csfont)
+
+            # fig.canvas.draw() # not sure this actually has to be here...
+
+            cbar = colorbar_mods(cbar, data_from_plot['color bar params']['side'], fig)
+            #cbars.append(cbar)
+            #cbar_labels.append(colorbar_label)
+
+    if plot_type == 'contour' or plot_type == 'image of the sky':
+        if 'color bar' in data_from_plot:
+            side = data_from_plot['color bar params']['side']
+            if side == 'top' or side == 'bottom':
+                orientation = 'horizontal'
+            else:
+                orientation = 'vertical'
+    
+            if 'image' in data_from_plot['data']: # select correct colorbar to use
+                datac = data_from_plot['data']['image']
+            else:
+                datac = data_from_plot['data']['contour']
+                                                         
+            cbar = fig.colorbar(datac, 
+                        cax=data_from_plot['color bar'], 
+                        orientation=orientation)
+            # label?
+            if type(popular_nouns) != str:
+                colorbar_words = get_titles_or_labels(popular_nouns, 
+                                                    colorbar_params['capitalize'],
+                                        colorbar_params['equation'], inlines,
+                                        nwords=rng.integers(low=title_params['n words']['min'],
+                                                                high=title_params['n words']['max']+1), 
+                                                                rng=rng)
+            else:
+                colorbar_words = popular_nouns
+                hasLabel = True
+
+            if hasLabel is None and (hasLabel is not False):
+                if rng.uniform() <= data_from_plot['color bar params']['label prob']: # has label
+                    cbar.set_label(colorbar_words, fontsize=colorbar_fontsize, **csfont)
+            elif hasLabel:
+                cbar.set_label(colorbar_words, fontsize=colorbar_fontsize, **csfont)
+
+            cbar = colorbar_mods(cbar, data_from_plot['color bar params']['side'], fig)
+
+            # # save for each
+            # cbar_labels.append(cbar)
+            # cbar_words.append(colorbar_words)
+            # if cbar is not None:
+            #     cbar_nums.append(len(cbar_nums)) # save axis of this colorbar
+            #     cbar_nums.append(len(cbar_nums)) # add extra for axes for colorbar
+            # else:
+            #     cbar_nums.append(-1)
+    fig.canvas.draw()
+    return cbar, colorbar_words
+
+
+            # # label?
+            # #colorbar_label = None
+            # if rng.uniform() <= data_from_plot['color bar params']['label prob']: # has label
+            #     colorbar_words = get_titles_or_labels(popular_nouns, colorbar_params['capitalize'],
+            #                             colorbar_params['equation'], inlines,
+            #                             nwords=rng.integers(low=title_params['n words']['min'],
+            #                                                     high=title_params['n words']['max']+1), 
+            #                                                     rng=rng)
+            #     cbar.set_label(colorbar_words, fontsize=colorbar_fontsize, **csfont)
+                #fig.canvas.draw() # not sure this actually has to be here...
+
+            #cbar = colorbar_mods(cbar, data_from_plot['color bar params']['side'], fig)
+                # if orientation == 'horizontal':
+                #     colorbar_label = cbar.ax.xaxis.label
+                # else:
+                #     colorbar_label = cbar.ax.yaxis.label
+                # print('colorbar_label, contour:', colorbar_label)
+                #import sys; sys.exit()
+            #cbars.append(cbar) # do we need this here?...
+
+
+    # if plot_type == 'scatter': 
+    #     if 'color bar' in data_from_plot:
+    #         side = data_from_plot['color bar params']['side']
+    #         if side == 'top' or side == 'bottom':
+    #             orientation = 'horizontal'
+    #         else:
+    #             orientation = 'vertical'
+
+    #         cbar = fig.colorbar(data_from_plot['data'], 
+    #                         cax=data_from_plot['color bar'], 
+    #                         orientation=orientation)
+    #         #cbars.append(cbar)
+
+    # if plot_type == 'contour':
+    #     if 'color bar' in data_from_plot:
+    #         side = data_from_plot['color bar params']['side']
+    #         if side == 'top' or side == 'bottom':
+    #             orientation = 'horizontal'
+    #         else:
+    #             orientation = 'vertical'
+    
+    #         if 'image' in data_from_plot['data']: # select correct colorbar to use
+    #             datac = data_from_plot['data']['image']
+    #         else:
+    #             datac = data_from_plot['data']['contour']
+                            
+    #         cbar = fig.colorbar(datac, 
+    #                         cax=data_from_plot['color bar'], 
+    #                         orientation=orientation)
+    #         #cbars.append(cbar)
+    # return cbar

@@ -561,6 +561,7 @@ def collect_plot_data_axes(ax, fig,
     # cbar_label = cbar_labels[iplot]
     # cbar_word = cbar_words[iplot]
 
+    # includes colors
     data_pixels = get_data_pixel_locations(data_from_plot, plot_type, ax, width, height)
 
     # bounding box of square
