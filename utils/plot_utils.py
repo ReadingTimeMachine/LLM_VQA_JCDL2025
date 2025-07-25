@@ -8,7 +8,7 @@ import numpy as np
 from PIL import ImageColor
 
 # classes
-from .plot_classes_utils import Histogram, Line
+from .plot_classes_utils import Histogram, Line, Scatter
 
 # for scatter plot markers
 from matplotlib.lines import Line2D
@@ -184,31 +184,76 @@ def get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=np.random, *
 
 
 # SCATTERS: PLOTS
-def get_scatter_plot(plot_params, data, ax, rng=np.random):
+def get_scatter_plot(plot_params, data, ax, rng=np.random, **kwargs):
+    scatter = Scatter()
+    for k,v in kwargs.items():
+        if k in scatter.__dict__: # in there
+            setattr(scatter, k, v)
+
+    # set choices
+    for attr in ['markers', 'marker_sizes']:
+        if getattr(scatter, attr) is not None:
+            if type(getattr(scatter, attr)) != type([]):
+                print('type of ' + attr + ' is not correct, setting default')
+                setattr(scatter,attr,None)
+            elif len(getattr(scatter, attr)) != len(data['ys']):
+                if len(getattr(scatter, attr)) > len(data['ys']):
+                    print('wrong length for '+attr+', truncating')
+                    setattr(scatter,attr, getattr(scatter, attr)[:len(data['ys'])])
+                else:
+                    print('wrong length for '+attr+', setting to default')
+                    setattr(scatter, attr, None)
+
     p = rng.uniform(0,1)
     cax = []; side = ''
-    marker = rng.choice(markers)
-    marker_size = int(round(rng.uniform(low=plot_params['markers']['size']['min'],
-                                    high=plot_params['markers']['size']['min'])))
+    # choose marker
+    if scatter.marker is None and scatter.markers is None:
+        marker = rng.choice(markers)
+    elif scatter.marker is not None:
+        marker = scatter.marker
+    elif scatter.markers is not None:
+        marker = scatter.markers
+    # choose marker size
+    if scatter.marker_size is None and scatter.marker_sizes is None:
+        marker_size = int(round(rng.uniform(low=plot_params['markers']['size']['min'],
+                                        high=plot_params['markers']['size']['min'])))
+    elif scatter.marker is not None:
+        marker_size = scatter.marker_size
+    elif scatter.marker_sizes is not None:
+        marker = scatter.marker_sizes
+    
+
     if not p <= plot_params['colormap scatter']['prob']: # not have color map
         data_here = ax.scatter(data['xs'],data['ys'],marker=marker, s=marker_size) 
     else:
+        #print('have colormap')
         data_here = ax.scatter(data['xs'],data['ys'], 
                                c=data['colors'],marker=marker, 
                               s=marker_size) # need to add color
         divider = make_axes_locatable(ax)
 
-        # get probs
-        probs = []; choices = []
-        for k,v in plot_params['color bar']['location probs'].items():
-            probs.append(v); choices.append(k)
-        side = rng.choice(choices, p=probs)
-        size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
-                     high=plot_params['color bar']['size percent']['max'])
-        size = str(int(round(size*100)))+'%'
+        # get colorbar side/size
+        if scatter.colorbar_side is None:
+            probs = []; choices = []
+            for k,v in plot_params['color bar']['location probs'].items():
+                probs.append(v); choices.append(k)
+            side = rng.choice(choices, p=probs)
+        else:
+            side = scatter.colorbar_side
+        if scatter.colorbar_size is None:
+            size = rng.uniform(low=plot_params['color bar']['size percent']['min'], 
+                        high=plot_params['color bar']['size percent']['max'])
+            size = str(int(round(size*100)))+'%'
+        else:
+            size = scatter.colorbar_size
 
-        pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
+        if scatter.colorbar_pad is None:
+            pad = rng.uniform(low=plot_params['color bar']['pad']['min'], 
                                  high=plot_params['color bar']['pad']['max'])
+        else:
+            pad = scatter.colorbar_pad
+
+        #print('side,size,pad', side,size,pad)
 
         cax = divider.append_axes(side, size=size, pad=pad)
         # the side of the axis
@@ -228,9 +273,13 @@ def get_scatter_plot(plot_params, data, ax, rng=np.random):
     xerrs = []; yerrs = []
     plt.draw()
     #print('DRAW WAS CALLED 2')
-    cols = data_here.get_facecolors()
-    elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
+    cols = data_here.get_facecolors() # color is set by data
+    #print(cols)
+    if scatter.elinewidth is None:
+        elinewidth = int(round(rng.uniform(low=plot_params['error bars']['elinewidth']['min'], 
                                                  high=plot_params['error bars']['elinewidth']['max'])))
+    else:
+        elinewidth = scatter.elinewidth
     if 'xerrs' in data:# and 'yerrs' not in data: # have x-errors
         cols_scatter = cols.reshape(-1,4)#*255
         # print('cols scatter:', cols_scatter.shape)
@@ -308,7 +357,7 @@ def get_scatter_plot(plot_params, data, ax, rng=np.random):
         #print("YESS TO Y IN DATA")
         data_out['y error bars'] = yerrs
     if 'xerrs' in data or 'yerrs' in data:
-        data_out['error bar params']:{'elinewidth':elinewidth}
+        data_out['error bar params'] = {'elinewidth':elinewidth}
     
     return data_out, ax
 
@@ -425,14 +474,14 @@ def get_contour_plot(plot_params, data, ax, rng=np.random):
     else:
         data_out = {'data':data_here}
 
-    # add in x/y errors, if present
-    if 'xerrs' in data:
-        data_out['x error bars'] = xerrs
-    if 'yerrs' in data:
-        #print("YESS TO Y IN DATA")
-        data_out['y error bars'] = yerrs
-    if 'xerrs' in data or 'yerrs' in data:
-        data_out['error bar params']:{'elinewidth':elinewidth}
+    # # add in x/y errors, if present
+    # if 'xerrs' in data:
+    #     data_out['x error bars'] = xerrs
+    # if 'yerrs' in data:
+    #     #print("YESS TO Y IN DATA")
+    #     data_out['y error bars'] = yerrs
+    # if 'xerrs' in data or 'yerrs' in data:
+    #     data_out['error bar params'] = {'elinewidth':elinewidth}
     
     return data_out, ax
 
@@ -618,7 +667,7 @@ def make_plot(plot_params, data, ax, plot_type='line', linestyles=linestyles,
         data_out, ax = get_line_plot(plot_params, data, ax, linestyles=linestyles, rng=rng, **kwargs)
         return data_out, ax
     elif plot_type == 'scatter':
-        data_out, ax = get_scatter_plot(plot_params, data, ax, rng=rng)
+        data_out, ax = get_scatter_plot(plot_params, data, ax, rng=rng, **kwargs)
         return data_out, ax
     elif plot_type == 'histogram':
         data_out, ax = get_histogram_plot(plot_params, data, ax, linestyles=linestyles, rng=rng, **kwargs)

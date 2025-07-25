@@ -28,3 +28,25 @@ class Line():
         self.linecolors = None
         # plots
         self.prob_same_x = None
+
+
+class Scatter():
+    def __init__(self):
+        self.marker = None
+        self.markers = None
+        self.marker_size = None
+        self.marker_sizes = None
+        self.colorbar_side = None
+        self.colorbar_size = None
+        self.colorbar_pad = None
+        self.elinewidth = None
+
+        # self.hasMarker = None
+        # self.lthick = None
+        # self.lthicks = None
+        # self.linestyle = None
+        # self.linestyles = None
+        # self.linecolor = None
+        # self.linecolors = None
+        # # plots
+        # self.prob_same_x = None

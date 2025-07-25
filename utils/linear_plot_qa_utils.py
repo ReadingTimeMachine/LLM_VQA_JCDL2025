@@ -6,7 +6,7 @@ import numpy as np
 
 
 
-from .plot_qa_utils import get_nplots, persona, context, how_many, how_much_data_values, check_relationship
+from .plot_qa_utils import get_nplots, persona, context, how_many, how_much_data_values#, check_relationship
 
 
 
