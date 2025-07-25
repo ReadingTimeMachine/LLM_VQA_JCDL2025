@@ -102,6 +102,8 @@ def q_stats_lines(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
     for z in zs:
         list_stat.append(f(z))
 
+    for_each = ', where each element of the list corresponds to one line in the plot'
+
     #---- Don't have to change much below ----
     big_tag = list(stat.keys())[0]
     # get nplots    
@@ -123,7 +125,8 @@ def q_stats_lines(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
                                                               axis=axis, 
                                                               val_type=val_type, 
                                                               use_words=use_words, 
-                                                              along_an_axis=True)
+                                                              along_an_axis=True,
+                                                              for_each=for_each)
     # big tag update
     big_tag += ' ' + axis
     # format answer

@@ -322,7 +322,8 @@ def how_many(object, big_tag, val_type = 'an integer', nplots = 1,
 
 
 def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float', 
-                         use_words=True, along_an_axis=False):
+                         use_words=True, along_an_axis=False, 
+                         for_each=''):
     axis_words = ''
     if along_an_axis:
         axis_words = 'along the ' + axis + '-axis'
@@ -335,7 +336,7 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
         outputf = '""'
     # formatting for output
     format = 'Please format the output as a json as {"'+big_tag+' '+axis + '":'+outputf+'} for this figure panel, where the "'+big_tag+' '+axis +'" value should be '+val_type+', calculated from the '
-    format += 'data values used to create the plot.'
+    format += 'data values used to create the plot'+for_each+'.'
     return q, adder, format
 
 
