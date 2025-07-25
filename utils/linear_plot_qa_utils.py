@@ -121,7 +121,7 @@ def q_stats_lines(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
         pindex = data['figure']['plot indexes'][plot_num]
         text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
 
-    text_question, adder, text_format  = how_much_data_values(big_tag, nplots=1, 
+    text_question, adder, text_format  = how_much_data_values(big_tag, nplots=nplots, 
                                                               axis=axis, 
                                                               val_type=val_type, 
                                                               use_words=use_words, 
@@ -159,11 +159,13 @@ def q_stats_lines(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
 
 
 ########## L2/L3 #############
-
-def q_relationship_lines(data, qa_pairs, plot_num = 0, return_qa=True, use_words=True, use_list=True, use_nlines = True,
+from .plot_qa_utils import what_is_relationship
+def q_relationship_lines(data, qa_pairs, plot_num = 0, 
+                         return_qa=True, use_words=True, 
+                         use_list=True, use_nlines = True,
                         line_list = ['random','linear','gaussian mixture model'], 
                         single_figure_flag=True,
-                        verbose=True):
+                        verbose=True, text_persona = None):
     """
     use_words : set to True to translate row, column to words; False will use C-ordering indexing
     use_list : give a list of possible distributions
@@ -171,10 +173,20 @@ def q_relationship_lines(data, qa_pairs, plot_num = 0, return_qa=True, use_words
     """
     
     # how many plots
-    big_tag_short = 'relationship'
+    big_tag = 'distribution'
+    val_type = 'a list of strings'
+    for_each = ', where each element of the list corresponds to one line in the plot'
+
+    # ---- don't have to change much below this -----
     # get nplots    
     nplots = get_nplots(data)
-
+    #adder = get_adder(nplots, use_words)
+    text_question, adder, text_format = what_is_relationship(big_tag, nplots=nplots, 
+                                                              val_type=val_type, 
+                                                              use_words=use_words, 
+                                                              along_an_axis=False,
+                                                              for_each=for_each)
+    
     ### persona of assistant
     text_persona = persona(text=text_persona)
     ## context for question
@@ -187,50 +199,21 @@ def q_relationship_lines(data, qa_pairs, plot_num = 0, return_qa=True, use_words
         pindex = data['figure']['plot indexes'][plot_num]
         text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
 
-    # **HERE** get text persona
 
-    # # construct question:
-    # q = text_persona + " " + text_context + " " + text_question + " " + text_format
-    # # get answer, formatted
-    # a = {big_tag + adder: ans}
-
-    # *****
-    # nplots = 0
-    # for k,v in data.items(): # count number of plots
-    #     if 'plot' in k:
-    #         nplots += 1
-    # if not use_words:
-    #     adder = '(plot numbers)'
-    #     # rows columns
-    #     nrow = data['figure']['plot indexes'][plot_num][0]
-    #     ncol = data['figure']['plot indexes'][plot_num][1]
-    #     q = 'The following question refers to the figure panel on row number ' + str(nrow) + ' and column number ' + str(ncol) + '. '
-    #     q += 'If there are multiple plots the panels will be in row-major (C-style) order, with the numbering starting at (0,0) in the upper left panel. '
-    #     q += 'If there is one plot, then this row and column refers to the single plot. '
-    # else: 
-    #     adder = '(words)'
-
-    # if nplots == 1: # single plot
-    #     q = 'What is the functional relationship between the x and y values in this figure? '
-    # else:
-    #     if not use_words:
-    #         q += 'What is the functional relationship between the x and y values for the figure panel on row number ' + str(nrow) + ' and column number ' + str(ncol) + '? '
-    #     else:
-    #         q = 'What is the functional relationship between the x and y values for the plot in the ' + plot_index_to_words(data['figure']['plot indexes'][plot_num]) + ' panel? '     
-
-    q += 'You are a helpful assistant, please format the output as a json as {"relationship":[]} where each element of the list corresponds to a single line in the figure. '
     if use_nlines:
         adder = adder.split(')')[0] + ' + nlines)'
-        q += 'Please note that there are a total of ' + str(int(len(data['plot' + str(plot_num)]['data']['ys']))) + ' lines in this plot, so the list should have a '
-        q += 'total of ' +str(int(len(data['plot' + str(plot_num)]['data']['ys'])))+ ' entries. '
+        text_format += ' Please note that there are a total of ' + str(int(len(data['plot' + str(plot_num)]['data']['ys']))) + ' lines in this plot, so the list should have a '
+        text_format += 'total of ' +str(int(len(data['plot' + str(plot_num)]['data']['ys'])))+ ' entries. '
 
     if use_list:
         adder = adder.split(')')[0] + ' + list)'
-        q += 'Please choose each '+big_tag_short+' for each line from the following list for each line: ['
+        text_format += ' Please choose each '+big_tag+' for each line from the following list for each line: ['
         for pt in line_list:
-            q += pt + ', '
-        q = q[:-2] # take off the last bit
-        q += '].'
+            text_format += pt + ', '
+        text_format = text_format[:-2] # take off the last bit
+        text_format += '].'
+
+    q = text_persona + " " + text_context + " " + text_question + " " + text_format
 
     # answer
     la = []
@@ -240,17 +223,28 @@ def q_relationship_lines(data, qa_pairs, plot_num = 0, return_qa=True, use_words
         if dist == 'gmm': dist = 'gaussian mixture model'
         la.append(dist) # note: assumes same for all!
     #a = la
-    a = {big_tag_short + ' ' + adder:la}
+    a = {big_tag + ' ' + adder:la}
 
     if verbose:
         print('QUESTION:', q)
         print('ANSWER:', a)
     if return_qa: 
-        if big_tag_short + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
+        if big_tag + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
             #print('yes', big_tag_short + ' ' + adder)
-            qa_pairs['Level 3']['Plot-level questions'][big_tag_short + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
-                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type'}}
+            qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type', 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}}
         else:
-            qa_pairs['Level 3']['Plot-level questions'][big_tag_short + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
-                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type'}
+            qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type', 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}
         return qa_pairs
+    
+   
+

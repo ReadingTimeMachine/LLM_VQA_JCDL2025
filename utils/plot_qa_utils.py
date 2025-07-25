@@ -340,6 +340,30 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
     return q, adder, format
 
 
+def what_is_relationship(big_tag, nplots=1, axis='x', val_type='a float', 
+                         use_words=True, along_an_axis=False, 
+                         for_each=''):
+    #axis_words = ''
+    axis = ' ' + axis
+    if along_an_axis:
+        #axis_words = 'along the' + axis + '-axis'
+        pass
+    else:
+        axis = ''
+    #q = 'What are the '+big_tag+' data values '+axis_words+' in this figure panel? '
+    q = 'What is the underlying '+big_tag+' used to create the data in this figure panel?'
+    adder = get_adder(nplots, use_words)
+    # list or not?
+    if 'list' in val_type:
+        outputf = '"[]"'
+    else:
+        outputf = '""'
+    # formatting for output
+    format = 'Please format the output as a json as {"'+big_tag+axis + '":'+outputf+'} for this figure panel, where the "'+big_tag+axis +'" value should be '+val_type+', calculated from the '
+    format += 'data values used to create the plot'+for_each+'.'
+    return q, adder, format
+
+
 def check_relationship(data, plot_num, qa_pairs, rel = 'gmm',
                        return_qa = True, verbose=False):
     # is this the correct relationship? if not this is an error
