@@ -343,15 +343,15 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
 def what_is_relationship(big_tag, nplots=1, axis='x', val_type='a float', 
                          use_words=True, along_an_axis=False, 
                          for_each=''):
-    #axis_words = ''
+    axis_words = ''
     axis = ' ' + axis
     if along_an_axis:
-        #axis_words = 'along the' + axis + '-axis'
+        axis_words = ' along the' + axis + '-axis'
         pass
     else:
         axis = ''
     #q = 'What are the '+big_tag+' data values '+axis_words+' in this figure panel? '
-    q = 'What is the underlying '+big_tag+' used to create the data in this figure panel?'
+    q = 'What is the underlying '+big_tag+' used to create the data in this figure panel'+axis_words+'?'
     adder = get_adder(nplots, use_words)
     # list or not?
     if 'list' in val_type:

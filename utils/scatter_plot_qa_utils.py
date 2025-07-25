@@ -162,93 +162,95 @@ def q_stats_scatters(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
 
 
 
-# ########## L2/L3 #############
-# from .plot_qa_utils import what_is_relationship
-# def q_relationship_lines(data, qa_pairs, plot_num = 0, 
-#                          return_qa=True, use_words=True, 
-#                          use_list=True, use_nlines = True,
-#                         line_list = ['random','linear','gaussian mixture model'], 
-#                         single_figure_flag=True,
-#                         verbose=True, text_persona = None):
-#     """
-#     use_words : set to True to translate row, column to words; False will use C-ordering indexing
-#     use_list : give a list of possible distributions
-#     use_nplots : give the number of lines in the prompt
-#     """
+########## L2/L3 #############
+from .plot_qa_utils import what_is_relationship
+def q_relationship_scatters(data, qa_pairs, plot_num = 0, 
+                         return_qa=True, use_words=True, 
+                         use_list=True, 
+                        line_list = ['random','linear','gaussian mixture model'], 
+                        single_figure_flag=True,
+                        verbose=True, text_persona = None):
+    """
+    use_words : set to True to translate row, column to words; False will use C-ordering indexing
+    use_list : give a list of possible distributions
+    use_nplots : give the number of lines in the prompt
+    """
     
-#     # how many plots
-#     big_tag = 'distribution'
-#     val_type = 'a list of strings'
-#     for_each = ', where each element of the list corresponds to one line in the plot'
+    # how many plots
+    big_tag = 'distribution'
+    val_type = 'a strings'
+    for_each = ''
+    along_an_axis = True
+    axis = 'color'
+    mark = 'scatter'
 
-#     # ---- don't have to change much below this -----
-#     # get nplots    
-#     nplots = get_nplots(data)
-#     #adder = get_adder(nplots, use_words)
-#     text_question, adder, text_format = what_is_relationship(big_tag, nplots=nplots, 
-#                                                               val_type=val_type, 
-#                                                               use_words=use_words, 
-#                                                               along_an_axis=False,
-#                                                               for_each=for_each)
+    ### answer
+    dist = data['plot'+str(plot_num)]['distribution']
+    # to match
+    if dist == 'gmm': dist = 'gaussian mixture model'
+    la = dist
+
+    # ---- don't have to change much below this -----
+    # get nplots    
+    nplots = get_nplots(data)
+    #adder = get_adder(nplots, use_words)
+    text_question, adder, text_format = what_is_relationship(big_tag, nplots=nplots, 
+                                                              val_type=val_type, 
+                                                              use_words=use_words, 
+                                                              along_an_axis=along_an_axis,
+                                                              axis=axis,
+                                                              for_each=for_each)
     
-#     ### persona of assistant
-#     text_persona = persona(text=text_persona)
-#     ## context for question
-#     if nplots == 1 and single_figure_flag:
-#         text_context = context(0, 0, use_words=use_words,
-#                                 single_figure_flag=single_figure_flag)
-#     else:
-#         nrow = data['figure']['plot indexes'][plot_num][0]
-#         ncol = data['figure']['plot indexes'][plot_num][1]
-#         pindex = data['figure']['plot indexes'][plot_num]
-#         text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
+    ### persona of assistant
+    text_persona = persona(text=text_persona)
+    ## context for question
+    if nplots == 1 and single_figure_flag:
+        text_context = context(0, 0, use_words=use_words,
+                                single_figure_flag=single_figure_flag)
+    else:
+        nrow = data['figure']['plot indexes'][plot_num][0]
+        ncol = data['figure']['plot indexes'][plot_num][1]
+        pindex = data['figure']['plot indexes'][plot_num]
+        text_context = context(nrow,ncol,plot_index=pindex, use_words=use_words)
 
+    if use_list:
+        adder = adder.split(')')[0] + ' + list)'
+        if for_each != '':
+            fe = ' for each '+mark
+            eot = 'each'
+        else:
+            fe = ''
+            eot = 'the'
+        text_format += ' Please choose '+eot+' '+big_tag+fe+' from the following list: ['
+        for pt in line_list:
+            text_format += pt + ', '
+        text_format = text_format[:-2] # take off the last bit
+        text_format += '].'
 
-#     if use_nlines:
-#         adder = adder.split(')')[0] + ' + nlines)'
-#         text_format += ' Please note that there are a total of ' + str(int(len(data['plot' + str(plot_num)]['data']['ys']))) + ' lines in this plot, so the list should have a '
-#         text_format += 'total of ' +str(int(len(data['plot' + str(plot_num)]['data']['ys'])))+ ' entries. '
+    q = text_persona + " " + text_context + " " + text_question + " " + text_format
 
-#     if use_list:
-#         adder = adder.split(')')[0] + ' + list)'
-#         text_format += ' Please choose each '+big_tag+' for each line from the following list for each line: ['
-#         for pt in line_list:
-#             text_format += pt + ', '
-#         text_format = text_format[:-2] # take off the last bit
-#         text_format += '].'
+    a = {big_tag + ' ' + adder:la}
 
-#     q = text_persona + " " + text_context + " " + text_question + " " + text_format
-
-#     # answer
-#     la = []
-#     for i in range(len(data['plot' + str(plot_num)]['data']['ys'])):
-#         dist = data['plot'+str(plot_num)]['distribution']
-#         # to match
-#         if dist == 'gmm': dist = 'gaussian mixture model'
-#         la.append(dist) # note: assumes same for all!
-#     #a = la
-#     a = {big_tag + ' ' + adder:la}
-
-#     if verbose:
-#         print('QUESTION:', q)
-#         print('ANSWER:', a)
-#     if return_qa: 
-#         if big_tag + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
-#             #print('yes', big_tag_short + ' ' + adder)
-#             qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
-#                                                                                                               'note':'this currently assumes all elements on a single plot have the same relationship type', 
-#                                                                                                         'persona':text_persona, 
-#                                                                                                         'context':text_context,
-#                                                                                                         'question':text_question, 
-#                                                                                                         'format':text_format}}
-#         else:
-#             qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
-#                                                                                                               'note':'this currently assumes all elements on a single plot have the same relationship type', 
-#                                                                                                         'persona':text_persona, 
-#                                                                                                         'context':text_context,
-#                                                                                                         'question':text_question, 
-#                                                                                                         'format':text_format}
-#         return qa_pairs
+    if verbose:
+        print('QUESTION:', q)
+        print('ANSWER:', a)
+    if return_qa: 
+        if big_tag + ' ' + adder not in qa_pairs['Level 3']['Plot-level questions']:
+            #print('yes', big_tag_short + ' ' + adder)
+            qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder] = {'plot'+str(plot_num):{'Q':q, 'A':a, 
+                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type', 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}}
+        else:
+            qa_pairs['Level 3']['Plot-level questions'][big_tag + ' ' + adder]['plot'+str(plot_num)] = {'Q':q, 'A':a, 
+                                                                                                              'note':'this currently assumes all elements on a single plot have the same relationship type', 
+                                                                                                        'persona':text_persona, 
+                                                                                                        'context':text_context,
+                                                                                                        'question':text_question, 
+                                                                                                        'format':text_format}
+        return qa_pairs
     
    
 

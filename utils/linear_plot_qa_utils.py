@@ -176,6 +176,7 @@ def q_relationship_lines(data, qa_pairs, plot_num = 0,
     big_tag = 'distribution'
     val_type = 'a list of strings'
     for_each = ', where each element of the list corresponds to one line in the plot'
+    mark = 'line'
 
     # ---- don't have to change much below this -----
     # get nplots    
@@ -207,7 +208,7 @@ def q_relationship_lines(data, qa_pairs, plot_num = 0,
 
     if use_list:
         adder = adder.split(')')[0] + ' + list)'
-        text_format += ' Please choose each '+big_tag+' for each line from the following list for each line: ['
+        text_format += ' Please choose each '+big_tag+' for each '+mark+' from the following list: ['
         for pt in line_list:
             text_format += pt + ', '
         text_format = text_format[:-2] # take off the last bit
