@@ -73,6 +73,20 @@ def get_contour_data(plot_params, distribution = 'random',
     else:
         cmin=c2; cmax=c1
 
+    # replace with inputs if requested
+    if contour.xmin is not None:
+        xmin = contour.xmin
+    if contour.ymin is not None:
+        ymin = contour.ymin
+    if contour.xmax is not None:
+        xmax = contour.xmax
+    if contour.ymax is not None:
+        ymax = contour.ymax
+    if contour.cmin is not None:
+        cmin = contour.cmin
+    if contour.cmax is not None:
+        cmax = contour.cmax
+
     if distribution == 'random':
         #print(xmin,xmax)
         xs,ys,colors = get_random_data('contour',xmin,xmax,ymin,ymax,

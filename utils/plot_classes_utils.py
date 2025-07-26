@@ -51,7 +51,13 @@ class Contour():
         self.colorbar_side = None
         self.colorbar_size = None
         self.colorbar_pad = None
-        
+        self.xmin = None
+        self.ymin = None
+        self.xmax = None
+        self.ymax = None
+        self.cmin = None
+        self.cmax = None
+
         # self.hasMarker = None
         # self.elinewidth = None
         # self.marker = None
