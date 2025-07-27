@@ -364,6 +364,20 @@ def what_is_relationship(big_tag, nplots=1, axis='x', val_type='a float',
     return q, adder, format
 
 
+def what_is_relationship_plot(big_tag, nplots=1, val_type='a float', 
+                         use_words=True):
+    q = 'What is the '+big_tag+' used to create the plot in this figure panel?'
+    adder = get_adder(nplots, use_words)
+    # list or not?
+    if 'list' in val_type:
+        outputf = '"[]"'
+    else:
+        outputf = '""'
+    # formatting for output
+    format = 'Please format the output as a json as {"'+big_tag+ + '":'+outputf+'} for this figure panel, where the "'+big_tag+ +'" value should be '+val_type+' for this plot.'
+    return q, adder, format
+
+
 def check_relationship(data, plot_num, qa_pairs, rel = 'gmm',
                        return_qa = True, verbose=False):
     # is this the correct relationship? if not this is an error

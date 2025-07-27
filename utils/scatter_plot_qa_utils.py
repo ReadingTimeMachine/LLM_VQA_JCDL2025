@@ -178,7 +178,7 @@ def q_relationship_scatters(data, qa_pairs, plot_num = 0,
     
     # how many plots
     big_tag = 'distribution'
-    val_type = 'a strings'
+    val_type = 'a string'
     for_each = ''
     along_an_axis = True
     axis = 'color'
