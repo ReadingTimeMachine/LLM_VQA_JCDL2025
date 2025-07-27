@@ -49,21 +49,40 @@ def get_contour_data(plot_params, distribution = 'random',
     else:
         ny = contour.ny
     
-    xmin,xmax = plot_params['xmin'],plot_params['xmax']
-    ymin,ymax = plot_params['ymin'],plot_params['ymax']
+    xmin_base,xmax_base = plot_params['xmin'],plot_params['xmax']
+    ymin_base,ymax_base = plot_params['ymin'],plot_params['ymax']
+    if contour.aspect_ratio_limit is None:
+        aspect_ratio_limit = plot_params['aspect ratio limit']
+    else:
+        aspect_ratio_limit = contour.aspect_ratio_limit
 
-    x1 = rng.uniform(low=xmin, high=xmax)
-    x2 = rng.uniform(low=xmin, high=xmax)
-    if x1<x2:
-        xmin = x1; xmax = x2
-    else:
-        xmin=x2; xmax=x1
-    y1 = rng.uniform(low=ymin, high=ymax)
-    y2 = rng.uniform(low=ymin, high=ymax)
-    if y1<y2:
-        ymin = y1; ymax = y2
-    else:
-        ymin=y2; ymax=y1
+    # start
+    aspect_ratio = aspect_ratio_limit + 1.0
+
+    while (aspect_ratio > aspect_ratio_limit) or (1./aspect_ratio > aspect_ratio_limit):
+        x1 = rng.uniform(low=xmin_base, high=xmax_base)
+        x2 = rng.uniform(low=xmin_base, high=xmax_base)
+        if x1<x2:
+            xmin = x1; xmax = x2
+        else:
+            xmin=x2; xmax=x1
+        y1 = rng.uniform(low=ymin_base, high=ymax_base)
+        y2 = rng.uniform(low=ymin_base, high=ymax_base)
+        if y1<y2:
+            ymin = y1; ymax = y2
+        else:
+            ymin=y2; ymax=y1
+
+        if np.abs((ymax-ymin)) > 0: # make sure division will work
+            aspect_ratio = np.abs((xmax-xmin)/(ymax-ymin))
+            #print('aspect ratio OK:', aspect_ratio)
+        else:
+            aspect_ratio = aspect_ratio_limit + 1.0
+            #print('aspect ratio not ok:', aspect_ratio)
+        if aspect_ratio == 0:
+            #print('aspect ratio 0:', aspect_ratio)
+            aspect_ratio = aspect_ratio_limit + 1.0
+
     c1 = rng.uniform(low=plot_params['colors']['min'], 
                            high=plot_params['colors']['max'])
     c2 = rng.uniform(low=plot_params['colors']['min'], 

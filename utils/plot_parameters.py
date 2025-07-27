@@ -200,6 +200,7 @@ plot_types_params = {
                          'xmax':10000,
                          'ymin':-10000,
                          'ymax':10000,
+                         'aspect ratio limit':2.0, # don't allow boxes greater than this or 1/this
                          'distribution': {
                              'random':{'prob':1},
                              'linear':{'prob':1, 

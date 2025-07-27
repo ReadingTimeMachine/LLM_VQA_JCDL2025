@@ -57,6 +57,7 @@ class Contour():
         self.ymax = None
         self.cmin = None
         self.cmax = None
+        self.aspect_ratio_limit = None
 
         # self.hasMarker = None
         # self.elinewidth = None
