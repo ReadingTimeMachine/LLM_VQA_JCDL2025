@@ -374,7 +374,15 @@ def what_is_relationship_plot(big_tag, nplots=1, val_type='a float',
     else:
         outputf = '""'
     # formatting for output
-    format = 'Please format the output as a json as {"'+big_tag+ + '":'+outputf+'} for this figure panel, where the "'+big_tag+ +'" value should be '+val_type+' for this plot.'
+    #print('***')
+    #print(big_tag)
+    #print(outputf)
+    #print(val_type)
+    format = 'Please format the output json as '
+    #format += '{"'+big_tag+ + '":'+outputf+'} '
+    format += '{"' + big_tag + '":'+outputf+'} '
+    #format += 'for this figure panel, where the "'+big_tag+ +'" value should be '+val_type+' for this plot.'
+    format += 'for this figure panel, where the "'+big_tag+'" value shoudl be '+val_type+' for this plot.'
     return q, adder, format
 
 
