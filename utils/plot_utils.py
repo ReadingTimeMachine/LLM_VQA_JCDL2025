@@ -396,7 +396,8 @@ def get_contour_plot(plot_params, data, ax, rng=np.random, **kwargs):
         dy = (real_y[1]-real_y[0])/2.
         extent = [real_x[0]-dx, real_x[-1]+dx, real_y[0]-dy, real_y[-1]+dy]
         #plt.imshow(data, extent=extent)
-        data_here1 = ax.imshow(data['colors'], extent=extent)
+        #print('extent', extent)
+        data_here1 = ax.imshow(data['colors'], extent=extent)#, aspect=100)
         data_here = {'image':data_here1}
     elif plot_type == 'both':
         if contour.grayContours is None:
