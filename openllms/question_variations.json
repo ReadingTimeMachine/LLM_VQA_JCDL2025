@@ -1,0 +1,103 @@
+{
+    "Level 1": {
+        "Plot-level questions": {
+            "npoints": [
+                "How many scatter points are there in the specified figure panel?",
+                "How many individual points are plotted in this panel?",
+                "Count the number of data markers shown in the plot.",
+                "What is the total count of scatter dots visible in the figure?",
+                "Can you determine how many points are plotted in this figure?",
+                "How many distinct points are represented on the chart?",
+                "Provide the number of plotted data points in the image."
+            ]
+        }
+    },
+    "Level 2": {
+        "Plot-level questions": {
+            "minimum x": [
+                "What are the minimum data values along the x-axis in this figure panel?",
+                "What is the smallest x-axis value shown in this plot?",
+                "Identify the minimum x-value in this panel.",
+                "Find the lowest value on the x-axis.",
+                "Can you report the smallest x-coordinate from the plot data?",
+                "What’s the minimum horizontal axis value based on the plot?"
+            ],
+            "maximum x": [
+                "What are the maximum data values along the x-axis in this figure panel?",
+                "What is the highest x-axis value shown in this figure?",
+                "Identify the maximum x-value in this chart.",
+                "Find the largest value along the x-axis.",
+                "Report the greatest horizontal value from the plot.",
+                "Can you determine the upper bound on the x-axis data?"
+            ],
+            "mean x": [
+                "What are the mean data values along the x-axis in this figure panel?",
+                "What is the average value along the x-axis in this figure?",
+                "Determine the mean of the horizontal axis data.",
+                "Can you compute the average x-axis value from this plot?",
+                "Report the mean x-coordinate based on plotted data.",
+                "What’s the central tendency along the x-axis in the image?"
+            ],
+            "median x": [
+                "What are the median data values along the x-axis in this figure panel?",
+                "What is the middle x-axis value shown in this plot?",
+                "Identify the x-coordinate at the 50th percentile.",
+                "Find the median horizontal value from the data points.",
+                "What x-axis value divides the data in half?",
+                "Report the x-axis median for this plot."
+            ],
+            "minimum y": [
+                "What are the minimum data values along the y-axis in this figure panel?",
+                "What is the smallest y-axis value in this figure?",
+                "Identify the lowest y-value in this panel.",
+                "Find the smallest vertical axis value in the chart.",
+                "Can you report the minimum y-coordinate based on the data?",
+                "What’s the minimum vertical value observed in the figure?"
+            ],
+            "maximum y": [
+                "What are the maximum data values along the y-axis in this figure panel?",
+                "What is the highest y-axis value in this chart?",
+                "Find the largest vertical axis value in the plot.",
+                "Identify the maximum y-coordinate for this figure.",
+                "Report the upper bound of the y-axis data.",
+                "What’s the greatest y-value displayed in this plot?"
+            ],
+            "mean y": [
+                "What are the mean data values along the y-axis in this figure panel?",
+                "What is the average y-value shown in this plot?",
+                "Determine the mean of the vertical axis values.",
+                "Report the mean y-coordinate for this panel.",
+                "Can you calculate the average vertical value in the chart?",
+                "What’s the expected value along the y-axis?"
+            ],
+            "median y": [
+                "What are the median data values along the y-axis in this figure panel?",
+                "What is the central y-value in this plot?",
+                "Find the 50th percentile value along the vertical axis.",
+                "Report the median y-coordinate observed in this figure.",
+                "Which y-axis value divides the plotted data evenly?",
+                "Can you determine the y-axis median from the data?"
+            ],
+            "mean color": [
+                "What are the mean data values along the color-axis in this figure panel?",
+                "What is the average color value used in the plot?",
+                "Compute the mean of the color-coded values.",
+                "Report the mean of data encoded by color.",
+                "Determine the average color-axis value.",
+                "What is the central tendency for color-coded data in the figure?"
+            ]
+        }
+    },
+    "Level 3": {
+        "Plot-level questions": {
+            "distribution color": [
+                "What is the underlying distribution used to create the data in this figure panel along the color-axis?",
+                "Which distribution type best describes the color-encoded data in this plot?",
+                "Can you identify whether the color-axis values follow a random, linear, or GMM pattern?",
+                "Based on the color data, what is the generating distribution for this figure?",
+                "What kind of distribution is used along the color axis—random, linear, or Gaussian mixture?",
+                "Classify the color-coded data distribution used in this chart."
+            ]
+        }
+    }
+}
