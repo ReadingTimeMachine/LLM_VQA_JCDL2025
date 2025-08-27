@@ -1,4 +1,4 @@
-annotators,image file,Human nGaussians,Human median (number),Human median (draw),Ground Truth nGaussian,Ground Truth Median
+annotators,image file,Human nGaussians,Human median (number),Human median (draw),Ground Truth nGaussians,Ground Truth Median
 annotator1,id_0041.jpeg,1,0.055,0.05526913033059963,1,0.05442785443529813
 annotator1,id_0014.jpeg,3,0.45,0.4574720348116822,1,0.47881051733437013
 annotator1,id_0028.jpeg,2,-0.42,-0.41586289001531257,2,-0.41730220223751163
