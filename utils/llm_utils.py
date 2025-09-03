@@ -114,12 +114,13 @@ def get_img_json_pair(img_path, json_path, dir_api,
     #print('on', iFile, 'of', iMax)
     err = False
     base_file = json_path.split('/')[-1].removesuffix('.json')
-    if os.path.exists(dir_api + base_file + '.pickle') and not restart:
-        if verbose: print('have file already:', dir_api + base_file + '.pickle')
-        if not return_image_format:
-            return '','', True
-        else:
-            return '', '', '', True
+    if dir_api is not None:
+        if os.path.exists(dir_api + base_file + '.pickle') and not restart:
+            if verbose: print('have file already:', dir_api + base_file + '.pickle')
+            if not return_image_format:
+                return '','', True
+            else:
+                return '', '', '', True
     # do we have it?
     try:
     #if True:
