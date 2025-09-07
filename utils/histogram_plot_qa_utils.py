@@ -116,10 +116,12 @@ def q_stats_hists(data, qa_pairs, stat = {'minimum':np.min}, plot_num = 0,
 def q_gmm_ngaussians_hists(data, qa_pairs, plot_num = 0, 
                            return_qa=True, use_words=True, verbose=True, 
                            single_figure_flag = True, 
-                               text_persona = None):
+                               text_persona = None, 
+                               additional_context=''):
     """
     use_words : set to True to translate row, column to words; False will use C-ordering indexing
     use_nlines : give the number of lines in the prompt
+    additional_context : if you want to for example give a range of number of hists
     """
 
     # check correct relationship
@@ -150,6 +152,7 @@ def q_gmm_ngaussians_hists(data, qa_pairs, plot_num = 0,
                                                        nplots = nplots, 
                                                        use_words=use_words, 
                                                        to_generate=True)
+    text_format += additional_context
 
     ### answer
     la = data['plot'+str(plot_num)]['data']['data params']['nclusters']
