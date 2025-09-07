@@ -327,7 +327,9 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
     axis_words = ''
     if along_an_axis:
         axis_words = 'along the ' + axis + '-axis'
-    q = 'What are the '+big_tag+' data values '+axis_words+' in this figure panel? '
+    #q = 'What are the '+big_tag+' data values '+axis_words+' in this figure panel? '
+    #q = 'What is the '+big_tag+' data value '+axis_words+' in this figure panel? ' # What is the median data value in this figure panel?
+    q = 'What is the '+big_tag+' value of the data '+axis_words+' in this figure panel? ' # What is the median data value in this figure panel?
     adder = get_adder(nplots, use_words)
     # list or not?
     if 'list' in val_type:
@@ -337,6 +339,9 @@ def how_much_data_values(big_tag, nplots=1, axis='x', val_type='a float',
     # formatting for output
     format = 'Please format the output as a json as {"'+big_tag+' '+axis + '":'+outputf+'} for this figure panel, where the "'+big_tag+' '+axis +'" value should be '+val_type+', calculated from the '
     format += 'data values used to create the plot'+for_each+'.'
+    # check formatting in case of any double spaces
+    q = q.replace('  ', ' ')
+    format = format.replace('  ', ' ')
     return q, adder, format
 
 
