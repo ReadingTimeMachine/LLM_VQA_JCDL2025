@@ -1,3 +1,9 @@
-# Synthetic Figures for Training -- JCDL 2025
+# What Lies Beneath: A Call for Distribution-based VQA Datasets
 
-TBD
+Welcome to the repository for the paper "What Lies Beneath: A Call for Distribution-based VQA Datasets", presented at JCDL 2025 (this will be updated with links when applicable).
+
+<div align="center">
+  <a href="TBD"><img src="https://img.shields.io/badge/Paper-arXiv-red" alt="arXiv"></a>
+  <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_multipanel"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
+  <a href="TBD"><img src="https://img.shields.io/badge/NAACL-2024-blue" alt="NAACL 2024"></a>
+</div>
