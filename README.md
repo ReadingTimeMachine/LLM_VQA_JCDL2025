@@ -1,4 +1,4 @@
-# What Lies Beneath: A Call for Distribution-based VQA Datasets
+# :ghost: What Lies Beneath: A Call for Distribution-based VQA Datasets :ghost:
 
 Welcome to the repository for the paper "What Lies Beneath: A Call for Distribution-based VQA Datasets", presented at JCDL 2025 (this will be updated with links when applicable).
 
