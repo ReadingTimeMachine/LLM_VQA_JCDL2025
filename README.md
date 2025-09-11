@@ -11,8 +11,14 @@ Welcome to the repository for the paper "What Lies Beneath: A Call for Distribut
 -->
 
 <div align="center">
+<!--
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_multipanel"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
+-->
+  <a href="TBD"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
+
 </div>
+
+(Supplemental Material): A permanent, attributed dataset release will be made upon acceptance.
 
 ## Overview
 
