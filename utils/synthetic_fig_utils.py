@@ -317,7 +317,7 @@ def get_ticks(ax, plot_type, axis, fig=None, dpi=None, minor=False, verbose = Fa
         print('[ERROR]: in "get_ticks" in synthetic_fig_utils -- no axis type for:', axis)
         import sys; sys.exit()
 
-    # JPN -- default is None DPI and fig!
+    # XYZ -- default is None DPI and fig!
     ticks = get_ticks_not_imgOfSky(ticklabels, ticklines, fig=None, dpi=None)
 
     return ticks

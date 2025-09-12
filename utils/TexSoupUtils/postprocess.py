@@ -212,7 +212,7 @@ def parse_soup(soup, tex_doc_accent, verbose=False):
                                 if err:
                                     return '',err
                                 texout_arr.append((strout, 'S-command'))
-                            # JPN added 20250622
+                            # XYZ added 20250622
                             # elif 'section' in str(ss.name):
                             #     strout = str(ss)
                             #     isAccent = False

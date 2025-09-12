@@ -37,7 +37,7 @@ linestyles = get_line_styles()
 # how many random colors to generate?
 # e.g. colors = colors_(6)
 #colors_ = lambda n: list(map(lambda i: "#" + "%06x" % rng.integer(0, 0xFFFFFF),range(n)))
-# JPN: should really be picked with a seed but leaving as is for now
+# XYZ: should really be picked with a seed but leaving as is for now
 colors_ = lambda n: list(map(lambda i: "#" + "%06x" % np.random.randint(0, 0xFFFFFF),range(n)))
 
 

@@ -179,7 +179,7 @@ def q_stats_contour(data, qa_pairs, stat = {'minimum':np.min}, axis = 'x',
 
 ########## L2/L3 #############
 #from .plot_qa_utils import what_is_relationship
-#### JPN --> combine contour and scatter
+#### XYZ --> combine contour and scatter
 def q_relationship_contour(data, qa_pairs, plot_num = [0,0], 
                          return_qa=True, use_words=True, 
                          use_list=True, 
