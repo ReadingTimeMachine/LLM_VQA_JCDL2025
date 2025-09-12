@@ -66,7 +66,7 @@ def parse_qa(level_parse, plot_level, qa, j, types,
     return qa
 
 
-def load_image(image_path, tmp_dir = '/Users/jnaiman/Downloads/tmp/', fac=1.0, 
+def load_image(image_path, tmp_dir = '~/Downloads/tmp/', fac=1.0, 
                return_image_format = False, 
                img_format='png'):
     """
@@ -95,7 +95,7 @@ def load_image(image_path, tmp_dir = '/Users/jnaiman/Downloads/tmp/', fac=1.0,
 
 
 def get_img_json_pair(img_path, json_path, dir_api, 
-                      tmp_dir = '/Users/jnaiman/Downloads/tmp/',
+                      tmp_dir = '~/Downloads/tmp/',
                       fac = 1.0, 
                       img_format = 'png',
                       return_image_format = True,
@@ -124,7 +124,7 @@ def get_img_json_pair(img_path, json_path, dir_api,
     # do we have it?
     try:
     #if True:
-        #image_path = '/Users/jnaiman/Downloads/data_full_v2/Picture'+str(int(iFile))+'.png'
+        #image_path = '~/Downloads/data_full_v2/Picture'+str(int(iFile))+'.png'
         if load_image_tmp:
             encoded_image, img_format = load_image(img_path, fac=fac, tmp_dir=tmp_dir, 
                                                img_format=img_format, 

@@ -20,8 +20,8 @@ from utils.synthetic_fig_utils import subset_by_percent, \
 
 # this is hacktacular from: https://github.com/ReadingTimeMachine/TexSoup
 # and needs to be updated
-#tex_lib = '/Users/jnaiman/TexSoup/'
-# tex_lib = '/Users/jnaiman/scienceDigitization/arxiv_mining_synthetic_data/utils/'
+#tex_lib = '~/TexSoup/'
+# tex_lib = '~/scienceDigitization/arxiv_mining_synthetic_data/utils/'
 # from sys import path
 # path.append(tex_lib)
 from .TexSoupUtils import preprocessing, postprocess
