@@ -14,7 +14,7 @@ Welcome to the repository for the paper "What Lies Beneath: A Call for Distribut
 <!--
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_multipanel"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
 -->
-  <a href="https://anonymous.4open.science/r/jcdl_visual_qa_histograms/README.md"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
+  <a href="https://anonymous.4open.science/r/jcdl_visual_qa_histograms-D68A"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
 
 </div>
 
