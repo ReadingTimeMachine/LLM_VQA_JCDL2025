@@ -541,14 +541,14 @@ def collect_plot_data_axes(ax, fig,
                            distribution_type, verbose=False,
                            #cbar_label = None, cbar_word=None, 
                            cbar_ax=None, 
-                           colorbar_verbose=False):
+                           colorbar_verbose=False, error_out=True):
     """
     Collect the data from each plot.  Axes-level (per axis)
 
     ax : individual axes
     iplot : plot index
     """
-
+    err = False
     if ax.get_figure() is None:
         if verbose:
             print('[WARNING]: ax has no figure, using "fig"')
@@ -581,7 +581,10 @@ def collect_plot_data_axes(ax, fig,
             print('[ERROR]: issue getting x-ticks')
             print('  ', str(e))
         success_plot = False
-        import sys; sys.exit()
+        if error_out:
+            import sys; sys.exit()
+        else:
+            return '', True
         #continue
 
     # y-tick locations
@@ -591,7 +594,10 @@ def collect_plot_data_axes(ax, fig,
         if verbose:
             print('[ERROR]: issue getting y-ticks')
             print('  ', str(e))
-            import sys; sys.exit()
+            if error_out:
+                import sys; sys.exit()
+            else:
+                return '', True
         success_plot = False
         #continue
     
@@ -612,6 +618,7 @@ def collect_plot_data_axes(ax, fig,
                 print('[ERROR]: issue getting colorbar ticks')
                 print('  ', str(e))
                 success_plot = False
+                return '', True
 
     # Get the bounding box of the title in display space
     if title != '':
@@ -687,7 +694,10 @@ def collect_plot_data_axes(ax, fig,
                 xoff = cbar_ax.yaxis.get_offset_text()
                 if xoff.get_text() != '' and yoff.get_text() != '':
                     print('both x & y have offset text and I dont know how to deal!')
-                    import sys; sys.exit()
+                    if error_out:
+                        import sys; sys.exit()
+                    else:
+                        return '', True
                 elif xoff.get_text() != '':
                     cbar_offset_text = xoff
                 else:
@@ -732,7 +742,10 @@ def collect_plot_data_axes(ax, fig,
                                             'ymax':cbar_ot_bb.y1}
             else:
                 print('not sure what kind of colorbar this is!')
-                import sys; sys.exit()
+                if error_out:
+                    import sys; sys.exit()
+                else:
+                    return '', True
 
             if colorbar_label is None:
                 if colorbar_verbose: print('colorbar_label is None for this plot!')
@@ -798,4 +811,4 @@ def collect_plot_data_axes(ax, fig,
                                     'xmax':lbb.x1, 'ymax':lbb.y1,
                                     'words':lt}
             
-    return datas
+    return datas, err
