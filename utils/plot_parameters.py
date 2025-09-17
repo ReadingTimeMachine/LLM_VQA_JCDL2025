@@ -1,7 +1,7 @@
 
 ###### MAIN FIGURE #######
 base = 5
-aspect_fig_params = {'min':0.25, 'max':1.5}#, 'prob function':np.random.uniform} # w/h
+aspect_fig_params = {'min':0.5, 'max':2.0}#, 'prob function':np.random.uniform} # w/h
 dpi_params = {'min':75, 'max':500}#, 'prob function':np.random.uniform} #300
 tight_layout_params = {True:0.9} # probability of having a "tight layout"
 
