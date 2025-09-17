@@ -819,6 +819,7 @@ def collect_plot_data_axes(ax, fig,
 # -----------------------------------------------
 
 def get_new_title(title_fontsize, rng, fontsizes, font_names, fontsize_min=8):
+    #print("get_new_title -- at top")
 
     title_fontsize -= 1
     err = False
@@ -827,11 +828,14 @@ def get_new_title(title_fontsize, rng, fontsizes, font_names, fontsize_min=8):
         err = True
         print("[ERROR]: can't make font size smaller, gonna grab new words for title and try again...")
         title_fontsize, _, _, _, _, _, _ = get_font_info(fontsizes, font_names, rng=rng)
+    #print("get_new_title -- at BOTTOM")
 
     return title_fontsize, err
 
 
-def get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng, fontsizes, font_names, fontsize_min = 8):
+def get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng, fontsizes, font_names, 
+                     fontsize_min = 8):
+    #print("get_new_xylabels -- at top")
     xlabel_fontsize -= 1
     ylabel_fontsize -= 1    
     err = False
@@ -840,6 +844,7 @@ def get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng, fontsizes, font_name
         err = True
         print("[ERROR]: can't make font size smaller, gonna grab new words for x/y axis labels and try again...")
         _, _, xlabel_fontsize, ylabel_fontsize, _, _, _ = get_font_info(fontsizes, font_names, rng=rng)
+    ##print('get_new_xylabels - NOW AT BOTTOM')
     return xlabel_fontsize, ylabel_fontsize, err
 
 
@@ -965,7 +970,7 @@ def check_labels_titles_off_page(datas, width, height, success_titles,
         if not success_axis_labels:
             if verbose: 
                 print('[ERROR]: x/y axis off page, making smaller...')
-                print('   x/y axis labels:', xlabels_pull, ylabels_pull)
+                #print('   x/y axis labels:', xlabels_pull, ylabels_pull)
             xlabel_fontsize, ylabel_fontsize, err = get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng_titles, fontsizes, font_names,
                                                                                 fontsize_min = fontsize_min)
             # regenerate x/y titles if fontsize too small
@@ -985,7 +990,8 @@ def check_labels_titles_off_page(datas, width, height, success_titles,
         if not success_title_label:
             if verbose:
                 print('[ERROR]: title axis off page, making smaller...')
-            title_fontsize, err = get_new_title(title_fontsize, rng_titles, fontsizes, font_names,
+            title_fontsize, err = get_new_title(title_fontsize, rng_titles, 
+                                                fontsizes, font_names,
                                                 fontsize_min=fontsize_min)
             # regenerate titles if fontsize too small
             success_titles = False

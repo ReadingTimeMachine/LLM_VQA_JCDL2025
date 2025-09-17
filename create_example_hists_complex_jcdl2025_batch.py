@@ -19,11 +19,11 @@ save_diagnostic_plot = True
 randomize_names = True
 
 
-nHistTotal = 125 # how many to make?
+nHistTotal = 130 # how many to make?
 restart = False # set to True to overwrite what is there
 
 grace_ticks = 5 # ignore tick marks that are outside the box by this -- invisible most likely
-itriesMax = 100 # start again if too many tries
+itriesMax = 10 # start again if too many tries
 verbose = True
 verbose_qa = True
 
@@ -349,22 +349,28 @@ while ifigure < nHistTotal:
                 if len(data_for_plot['xs']) > 0 and plot_type == 'histogram':
                     success_get_data = True
 
-        rng = np.random.default_rng(seed)
+        #seed = np.random.randint(maxint)
+        #rng = np.random.default_rng(seed)
+        #print('START: success_titles')
         while not success_titles: # ensure we catch any errors with bad fonts
             try:
                 # make figure object
+                #print('get fig axes level')
                 fig, axes, plot_inds = make_base_plot(plot_style, color_map, dpi, nrows, ncols, aspect_fig,
                                 base=2, verbose=True, tight_layout = tight_layout)
                 # make plot based on data we already got
+                #print('get data from plot level')
                 data_from_plot, ax = make_plot(plot_params_out[plot_type], data_for_plot, 
                                         axes[0], plot_type=plot_type, linestyles=linestyles_hist, 
                                         rng=rng)
                 # generate x/y labels and titles
+                #print('get title x/y label level')
                 title, xlabel, ylabel = add_titles_and_labels(axes[0], xlabels_pull, ylabels_pull, titles_pull, 
                                                         title_params, csfont, title_fontsize, 
                                     xlabel_params, ylabel_params, xlabel_fontsize, ylabel_fontsize,
                                     inlines, xlabel_ticks_fontsize, ylabel_ticks_fontsize,
                                     rng=rng_titles)
+                #print('end of pulling vars') # HERE OK
                 # set "pulls" to save, reset letter as needed
                 try:
                     xlabels_pull = xlabel.get_text()
@@ -387,10 +393,12 @@ while ifigure < nHistTotal:
                         titles_pull = title
                     else:
                         flasj
-                # flag as success after render      
+                # flag as success after render   
+                #print('end of try except')  # HERE?
                 success_titles = True
-                plt.draw()
-                plt.pause(0.001)
+                # HERE is where the errors are occuring -- the SystemErrors null thing
+                #plt.draw()
+                #plt.pause(0.001)
             except Exception as e:
                 plt.close('all')
                 #print("HERE")
@@ -656,10 +664,12 @@ while ifigure < nHistTotal:
 
     if success_plot:
         print('DONE MAKING PLOT!')
-        plt.close('all')
+        plt.close('all') # won't work for parallel
         ifigure += 1
-    else:
+    elif itries >= itriesMax:
         print("--- maxed out tries, plot failed ---")
+    else:
+        import sys; sys.exit()
 
     # either way, reset
     rng_outer, rng, rng_titles, rng_font, rng_aspect = set_all_seeds(reset_outer = True, 
