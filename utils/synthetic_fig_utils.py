@@ -812,3 +812,378 @@ def collect_plot_data_axes(ax, fig,
                                     'words':lt}
             
     return datas, err
+
+
+# -----------------------------------------------
+# ------------ FOR TESTING and RERUNS ----------
+# -----------------------------------------------
+
+def get_new_title(title_fontsize, rng, fontsizes, font_names, fontsize_min=8):
+
+    title_fontsize -= 1
+    err = False
+
+    if title_fontsize < fontsize_min:
+        err = True
+        print("[ERROR]: can't make font size smaller, gonna grab new words for title and try again...")
+        title_fontsize, _, _, _, _, _, _ = get_font_info(fontsizes, font_names, rng=rng)
+
+    return title_fontsize, err
+
+
+def get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng, fontsizes, font_names, fontsize_min = 8):
+    xlabel_fontsize -= 1
+    ylabel_fontsize -= 1    
+    err = False
+
+    if xlabel_fontsize < fontsize_min or ylabel_fontsize < fontsize_min:
+        err = True
+        print("[ERROR]: can't make font size smaller, gonna grab new words for x/y axis labels and try again...")
+        _, _, xlabel_fontsize, ylabel_fontsize, _, _, _ = get_font_info(fontsizes, font_names, rng=rng)
+    return xlabel_fontsize, ylabel_fontsize, err
+
+
+
+import matplotlib.pyplot as plt
+from copy import deepcopy
+
+from sys import maxsize as maxint
+from .plot_qa_utils import log_scale_ax
+from .data_utils import get_data
+
+def reset_all_params(plot_params_input, popular_nouns, 
+                     plot_styles, fontsizes, font_names, dpi_params,
+                     aspect_fig_params, plot_type, rng,
+                     colormaps = plt.colormaps(), verbose=True):
+    """
+    If there is major failure, reset all randomized params and try to remake the plot.
+    """
+    plot_params_in = deepcopy(plot_params_input)
+    success_titles = False
+    seed_aspect = np.random.randint(maxint)
+    rng_aspect = np.random.default_rng(seed_aspect)
+    seed_titles = np.random.randint(maxint)
+    rng_titles = np.random.default_rng(seed_titles)
+    aspect_fig = rng_aspect.uniform(low=aspect_fig_params['min'], high=aspect_fig_params['max'])
+    xlabels_pull = deepcopy(popular_nouns)
+    ylabels_pull = deepcopy(popular_nouns)
+    titles_pull = deepcopy(popular_nouns)
+    seed_outer= np.random.randint(maxint)
+    rng_outer = np.random.default_rng(seed_outer)
+    color_map = rng_outer.choice(colormaps) # choose a color map
+    plot_style = rng_outer.choice(plot_styles) # choose a plotting style
+    # dist params
+    dist_params = plot_params_in[plot_type]['distribution'] 
+    choices_d = []; probs_d = []
+    for k,v in dist_params.items():
+        choices_d.append(k)
+        probs_d.append(v['prob'])
+    distribution_type = rng_outer.choice(choices_d, p=probs_d)
+    # get fonts
+    title_fontsize, colorbar_fontsize, xlabel_fontsize, ylabel_fontsize, \
+        xlabel_ticks_fontsize, ylabel_ticks_fontsize, \
+                            csfont = get_font_info(fontsizes, font_names, rng=rng_titles)
+    # get DPI
+    dpi = int(rng_outer.uniform(low=dpi_params['min'], high=dpi_params['max']))
+    # get data
+    # pull xmin/xmax for hists
+    xmin,xmax = log_scale_ax()
+    plot_params_in[plot_type]['xmin']=xmin
+    plot_params_in[plot_type]['xmax']=xmax
+    if verbose: print('xmin, xmax = ', xmin, xmax)
+
+    # get plot data
+    success_get_data = False
+    while not success_get_data:
+        data_for_plot = get_data(plot_params_in[plot_type], 
+                                plot_type=plot_type, distribution=distribution_type, rng=rng)
+        if len(data_for_plot['xs']) > 0 and plot_type == 'histogram':
+            success_get_data = True
+
+
+    return success_titles, rng_aspect, rng_titles, aspect_fig, xlabels_pull, ylabels_pull, \
+        titles_pull, rng_outer, color_map, plot_style, dist_params, distribution_type, \
+    title_fontsize, colorbar_fontsize, xlabel_fontsize, ylabel_fontsize, \
+        xlabel_ticks_fontsize, ylabel_ticks_fontsize, \
+                            csfont, dpi, xmin,xmax, plot_params_in, data_for_plot 
+
+
+
+# shorten checks
+def check_aspect(datas, success_titles, aspect_fig, aspect_cut, aspect_fig_params):
+    """
+    Check if the resulting aspect ratio of the figure is super small.  If so, flag to re-run stuff.
+    """
+    # 1. Check for square with weird aspect ratio
+    success_aspect = True
+    # check for thin/fat squares
+    for k,v in datas.items():
+        if 'plot' in k: # a plot key
+            w = v['square']['xmax']-v['square']['xmin']
+            h = v['square']['ymax']-v['square']['ymin']
+            if w/h > aspect_cut['max'] or w/h < aspect_cut['min']:
+                success_aspect = False
+
+    if not success_aspect:
+        print('[ERROR]: aspect ratio off')
+        # regenerate figure with new aspect ratio
+        success_titles = False
+        seed_aspect = np.random.randint(maxint)
+        rng_aspect = np.random.default_rng(seed_aspect)
+        aspect_fig = rng_aspect.uniform(low=aspect_fig_params['min'], high=aspect_fig_params['max'])
+
+    return success_titles, success_aspect, aspect_fig
+
+
+def check_labels_titles_off_page(datas, width, height, success_titles, 
+                                 xlabels_pull, ylabels_pull, titles_pull,
+                                 xlabel_fontsize, ylabel_fontsize, rng_titles, 
+                                 popular_nouns, title_fontsize, 
+                                 fontsizes, font_names,
+                                 fontsize_min = 8, verbose=True):
+    """
+    Check if any of the x-axis labels, y-axis labels, or titles is off the page of the figure.  
+    If so, try to make the fontsize smaller and re-run.  If the fontsize is smaller than 
+    the `fontsize_min` parameter, flag to re-pull new x/y axis labels and titles.
+    """
+    # check for overlaps of x/y axis labels, tickmarks or anything outside of the figbox
+    success_axis_labels = True
+    success_title_label = True
+    for k,v in datas.items():
+        if 'plot' in k: # a plot key
+            # check if x is out of bounds
+            for axislabel in ['xlabel', 'ylabel']:
+                if v[axislabel]['xmin'] < 0 or v[axislabel]['xmax'] > width or \
+                    v[axislabel]['ymin'] < 0 or v[axislabel]['ymax'] > height:
+                    success_axis_labels = False
+            # also title
+            if 'title' in v:
+                if v['title']['xmin'] < 0 or v['title']['xmax'] > width or \
+                    v['title']['ymin'] < 0 or v['title']['ymax'] > height:
+                    success_title_label = False
+
+        if not success_axis_labels:
+            if verbose: 
+                print('[ERROR]: x/y axis off page, making smaller...')
+                print('   x/y axis labels:', xlabels_pull, ylabels_pull)
+            xlabel_fontsize, ylabel_fontsize, err = get_new_xylabels(xlabel_fontsize, ylabel_fontsize, rng_titles, fontsizes, font_names,
+                                                                                fontsize_min = fontsize_min)
+            # regenerate x/y titles if fontsize too small
+            success_titles = False
+            if err: # regenerate labels
+                xlabels_pull = deepcopy(popular_nouns)
+                ylabels_pull = deepcopy(popular_nouns)
+                # reset RNG for labels
+                seed_titles = np.random.randint(maxint)
+                rng_titles = np.random.default_rng(seed_titles)
+            else:
+                if verbose: print('   new fontsizes (x,y):', xlabel_fontsize, ylabel_fontsize)
+
+        if not success_axis_labels and err:
+            return success_titles, xlabel_fontsize, ylabel_fontsize, title_fontsize, xlabels_pull, ylabels_pull, titles_pull, rng_titles, success_title_label, success_axis_labels
+
+        if not success_title_label:
+            if verbose:
+                print('[ERROR]: title axis off page, making smaller...')
+            title_fontsize, err = get_new_title(title_fontsize, rng_titles, fontsizes, font_names,
+                                                fontsize_min=fontsize_min)
+            # regenerate titles if fontsize too small
+            success_titles = False
+            if err:
+                titles_pull = deepcopy(popular_nouns)
+                # reset RNG for labels
+                seed_titles = np.random.randint(maxint)
+                rng_titles = np.random.default_rng(seed_titles)
+            else:
+                if verbose: print('   new fontsize:', title_fontsize)
+
+            #break # I think...         
+    return success_titles, xlabel_fontsize, ylabel_fontsize, title_fontsize, xlabels_pull, ylabels_pull, titles_pull, rng_titles, success_title_label, success_axis_labels
+
+
+from .metric_utils.utilities import isRectangleOverlap
+
+def collect_boxes(datas, grace_ticks=5):
+    """
+    Collect all potential bounding boxes in a figure (can be for multi-panel figures too).
+    """
+    # now check overlapping boxes
+    # first make boxes
+    boxes_check = []
+    success_boxes = True
+    for k,v in datas.items():
+        if 'plot' in k: # a plot key
+            # square!
+            boxes_check.append(([v['square']['xmin'], v['square']['ymin'], 
+                                        v['square']['xmax'], v['square']['ymax']], 'square'))
+            if 'title' in v:
+                boxes_check.append( ([v['title']['xmin'], v['title']['ymin'], 
+                                        v['title']['xmax'], v['title']['ymax']], 'title') )
+            # xlabel
+            boxes_check.append( ([v['xlabel']['xmin'], v['xlabel']['ymin'], 
+                                        v['xlabel']['xmax'], v['xlabel']['ymax']], 'xlabel') )
+            # ylabel
+            boxes_check.append( ([v['ylabel']['xmin'], v['ylabel']['ymin'], 
+                                        v['ylabel']['xmax'], v['ylabel']['ymax']],'ylabel')  )
+            # x/yticks
+            for t in ['x','y']:
+                for tick in v[t+'ticks']:
+                    # ignore things that are outside square
+                    if tick['tx'] < v['square']['xmin']-grace_ticks or tick['tx'] > v['square']['xmax']+grace_ticks or \
+                      tick['ty'] < v['square']['ymin']-grace_ticks or tick['ty'] > v['square']['ymax']+grace_ticks:
+                        continue
+                    boxes_check.append( ([tick['xmin'],tick['ymin'],tick['xmax'],tick['ymax']],t+'-tick labels') )
+            # x/y offset labels
+            for t in ['x','y']:
+                if t + '-offset text' in v:
+                    tick = v[t + '-offset text']
+                    boxes_check.append( ([tick['xmin'],tick['ymin'],tick['xmax'],tick['ymax']],t+'-offset text') )
+
+            # if colorbar, add this
+            if 'color bar' in v:
+                boxes_check.append(([v['color bar']['xmin'], v['color bar']['ymin'], 
+                                        v['color bar']['xmax'], v['color bar']['ymax']],'colorbar'))
+                # also check for label
+                if 'label' in v['color bar']:
+                    xmin = v['color bar']['label']['xmin']
+                    ymin = v['color bar']['label']['ymin']
+                    xmax = v['color bar']['label']['xmax']
+                    ymax = v['color bar']['label']['ymax']
+                    boxes_check.append(([xmin,ymin,xmax,ymax],'colorbar label'))
+                # and offset text
+                if 'offset text' in v['color bar']:
+                    xmin = v['color bar']['offset text']['xmin']
+                    ymin = v['color bar']['offset text']['ymin']
+                    xmax = v['color bar']['offset text']['xmax']
+                    ymax = v['color bar']['offset text']['ymax']
+                    boxes_check.append(([xmin,ymin,xmax,ymax],'colorbar offset text'))
+                    
+            # colorbar ticks
+            if 'color bar ticks' in v:
+                for tick in v['color bar ticks']:
+                    boxes_check.append( ([tick['xmin'],tick['ymin'],tick['xmax'],tick['ymax']], 'colorbar tick') )
+
+    # now run and check all boxes -- look for overlap of all boxes
+    names_overlap = []
+    for ib1,(box1,name1) in enumerate(boxes_check):
+        for ib2,(box2,name2) in enumerate(boxes_check):
+            if ib1 != ib2: # ib1 < ib2?
+                if isRectangleOverlap( box1, box2 ):
+                    names_overlap.append( (name1, name2) )
+                    success_boxes = False
+
+    return success_boxes, boxes_check, names_overlap
+
+
+def update_fonts_boxes_overlap(names_overlap, success_titles, rng_titles,popular_nouns,
+                            xlabels_pull, ylabels_pull, titles_pull,
+                            xlabel_ticks_fontsize, ylabel_ticks_fontsize, 
+                            xlabel_fontsize, ylabel_fontsize, title_fontsize,
+                               verbose=True, fontsize_min=8):
+    """
+    Check if there are any overlapping bounding boxes.  If so, try to update fonts 
+    if possible, and if not, flag to regenerate the figure.
+    """
+    if verbose: print('[ERROR]: overlapping boxes!')
+    # figure out what to do for each box
+    # get unique overlaps
+    s1 = np.unique(names_overlap, axis=0)
+    # sort
+    s2 = np.unique(np.sort(s1, axis=1),axis=0)
+
+    ######## check boxes ##########
+    reset_fonts = False
+    for b1,b2 in s2:
+        # for ticks overlapping with things
+        if 'tick' in b1 and 'tick' in b2: # overlapping ticks, smallen
+            xlabel_ticks_fontsize -= 1
+            ylabel_ticks_fontsize -= 1
+            success_titles = False
+            break
+        elif ( ('tick' in b1) and ('tick' not in b2) and  ('xlabel' in b2) ) or ( ('tick' in b2) and ('tick' not in b1) and  ('xlabel' in b1) ): # xlabel cross over
+            if xlabel_fontsize > xlabel_ticks_fontsize: # axis label still bigger
+                xlabel_ticks_fontsize -= 1
+                ylabel_ticks_fontsize -= 1
+            else:
+                xlabel_fontsize -= 1
+            success_titles = False
+            break            
+        elif ( ('tick' in b1) and ('tick' not in b2) and  ('ylabel' in b2) ) or ( ('tick' in b2) and ('tick' not in b1) and  ('ylabel' in b1) ): # ylabel cross over
+            if ylabel_fontsize > ylabel_ticks_fontsize: # axis label still bigger
+                xlabel_ticks_fontsize -= 1
+                ylabel_ticks_fontsize -= 1
+            else:
+                ylabel_fontsize -= 1
+            success_titles = False
+            break   
+        elif ( ('tick' in b1) and ('tick' not in b2) and  ('title' in b2) ) or ( ('tick' in b2) and ('tick' not in b1) and  ('title' in b1) ): # title cross over
+            if title_fontsize > ylabel_ticks_fontsize or title_fontsize > xlabel_ticks_fontsize: # axis label still bigger
+                xlabel_ticks_fontsize -= 1
+                ylabel_ticks_fontsize -= 1
+            else:
+                title_fontsize -= 1
+            success_titles = False
+            break   
+        elif ( ('xlabel' in b1) or ('xlabel' in b2) or ('ylabel' in b1) or ('ylabel' in b2) ): # overlap
+            ylabel_fontsize -= 1
+            xlabel_fontsize -= 1
+            success_titles = False
+            break
+        elif ('title' in b1) or ('title' in b2):
+            title_fontsize -= 1
+            success_titles = False
+            break
+        else: # no idea!
+            reset_fonts = True
+
+    # full rest of fonts
+    for fs in [xlabel_fontsize, ylabel_fontsize, ylabel_ticks_fontsize, xlabel_ticks_fontsize, title_fontsize]:
+        if fs < fontsize_min:
+            reset_fonts = True    
+
+    if reset_fonts:
+        xlabels_pull = deepcopy(popular_nouns)
+        ylabels_pull = deepcopy(popular_nouns)
+        titles_pull = deepcopy(popular_nouns)
+        # reset RNG for labels
+        seed_titles = np.random.randint(maxint)
+        rng_titles = np.random.default_rng(seed_titles)\
+        
+    return success_titles, xlabel_fontsize, ylabel_fontsize, ylabel_ticks_fontsize, xlabel_ticks_fontsize, title_fontsize, xlabels_pull, ylabels_pull, titles_pull, rng_titles
+
+
+
+# based on seed, make random number generator, see: https://numpy.org/doc/2.2/reference/random/generator.html
+def set_all_seeds(rng_outer=np.random, rng=np.random, rng_titles=np.random, rng_font=np.random, rng_aspect=np.random,
+                  reset_outer = False, reset_inner = False, reset_titles=False, reset_fonts = False, reset_aspect = False,
+                  verbose=True):
+    if reset_outer:
+        seed_outer = np.random.randint(maxint)
+        if verbose: print('seed_outer =',seed_outer)
+        rng_outer = np.random.default_rng(seed_outer)
+
+    # "Inner" seed -- for things like distributions and whatnot
+    if reset_inner:
+        seed = np.random.randint(maxint)
+        if verbose: print('seed, inner = ', seed)
+        rng = np.random.default_rng(seed)
+
+    # for titles
+    if reset_titles:
+        seed_titles = np.random.randint(maxint)
+        if verbose: print('seed_titles:', seed_titles)
+        rng_titles = np.random.default_rng(seed_titles)
+
+    # for fonts
+    if reset_fonts:
+        seed_font = np.random.randint(maxint)
+        if verbose: print('seed_font:', seed_font)
+        rng_font = np.random.default_rng(seed_font)
+
+    # aspect ratio
+    if reset_aspect:
+        seed_aspect = np.random.randint(maxint)
+        if verbose: print('seed_aspect:', seed_aspect)
+        rng_aspect = np.random.default_rng(seed_aspect)
+
+    return rng_outer, rng, rng_titles, rng_font, rng_aspect
