@@ -30,3 +30,10 @@ This paper contributes:
 * Code to generate histograms with a variety of parameters
 * A large set of VQA histogram images and questions
 * A small exemplary set of VQA images and questions with answers from an LMM (GPT-5) and two human annotators for comparison of humans and LMM VQA capabilities for charts that have an underlying distribution not plotted 1-to-1 on the chart image
+
+## Citation information
+
+If you use this work please cite:
+```
+TBD
+```
