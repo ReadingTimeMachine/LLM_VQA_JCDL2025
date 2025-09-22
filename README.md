@@ -31,6 +31,10 @@ This paper contributes:
 * A large set of VQA histogram images and questions
 * A small exemplary set of VQA images and questions with answers from an LMM (GPT-5) and two human annotators for comparison of humans and LMM VQA capabilities for charts that have an underlying distribution not plotted 1-to-1 on the chart image
 
+## Known issues/TODOs
+- Major cleaning of repo needed!
+- The ChatGPT-mini may not have all updated VQA questions/answers (not used directly in paper)
+
 ## Citation information
 
 If you use this work please cite:
