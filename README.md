@@ -14,9 +14,9 @@ Welcome to the repository for the paper "What Lies Beneath: A Call for Distribut
 <!--
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_multipanel"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
 -->
-  <a href="[TBD](https://arxiv.org/abs/2601.22218)"><img src="https://img.shields.io/badge/Paper-arXiv-red" alt="arXiv"></a>
+  <a href="https://arxiv.org/abs/2601.22218"><img src="https://img.shields.io/badge/Paper-arXiv-red" alt="arXiv"></a>
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_histograms"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
-  <a href="[TBD](https://2025.jcdl.org/accepted-contributions/#short-papers)"><img src="https://img.shields.io/badge/JCDL-2025-blue" alt="JCDL 2025"></a>
+  <a href="https://2025.jcdl.org/accepted-contributions/#short-papers"><img src="https://img.shields.io/badge/JCDL-2025-blue" alt="JCDL 2025"></a>
 </div>
 
 (Supplemental Material): A permanent, attributed dataset release will be made upon acceptance.
