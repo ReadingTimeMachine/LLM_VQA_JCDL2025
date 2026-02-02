@@ -14,8 +14,9 @@ Welcome to the repository for the paper "What Lies Beneath: A Call for Distribut
 <!--
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_multipanel"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
 -->
+  <a href="[TBD](https://arxiv.org/abs/2601.22218)"><img src="https://img.shields.io/badge/Paper-arXiv-red" alt="arXiv"></a>
   <a href="https://huggingface.co/datasets/ReadingTimeMachine/visual_qa_histograms"><img src="https://img.shields.io/badge/Dataset-%F0%9F%A4%97%20Hugging_Face-yellow" alt="Hugging Face"></a>
-
+  <a href="[TBD](https://2025.jcdl.org/accepted-contributions/#short-papers)"><img src="https://img.shields.io/badge/JCDL-2025-blue" alt="JCDL 2025"></a>
 </div>
 
 (Supplemental Material): A permanent, attributed dataset release will be made upon acceptance.
@@ -39,5 +40,15 @@ This paper contributes:
 
 If you use this work please cite:
 ```
-TBD
+@inproceedings{whatlies2025,
+      title={What Lies Beneath: A Call for Distribution-based Visual Question & Answer Datasets}, 
+      author={Jill P. Naiman and Daniel J. Evans and JooYoung Seo},
+      year={2025},
+      eprint={2601.22218},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2601.22218},
+      series = {ACM/IEEE Joint Conference on Digital Libraries JCDL 2025},
+      booktitle = {ACM/IEEE Joint Conference on Digital Libraries JCDL 2025} 
+}
 ```
